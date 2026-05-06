@@ -4,3 +4,4 @@ pandas
 scikit-learn
 requests
 psycopg2-binary
+mysql-connector-python
