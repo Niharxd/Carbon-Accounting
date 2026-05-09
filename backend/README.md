@@ -58,11 +58,12 @@ The table `usage_logs` will be created automatically on startup.
 
 Swagger UI: http://127.0.0.1:8000/docs
 
-| Method | Endpoint     | Description                      |
-|--------|--------------|----------------------------------|
-| GET    | `/`          | Health check                     |
-| POST   | `/calculate` | Calculate GHG emissions          |
-| GET    | `/logs`      | Fetch last 10 calculation logs   |
+| Method | Endpoint     | Description                           |
+|--------|--------------|---------------------------------------|
+| GET    | `/`          | Health check                          |
+| POST   | `/calculate` | Calculate GHG emissions (formula)     |
+| POST   | `/predict`   | Predict GHG emissions (ML model)      |
+| GET    | `/logs`      | Fetch last 10 calculation logs        |
 
 ### POST `/calculate` — Example Request
 
@@ -84,6 +85,32 @@ Swagger UI: http://127.0.0.1:8000/docs
   "emissions": 9.52
 }
 ```
+
+### POST `/predict` — Example Request
+
+```json
+{
+  "cpu": 20.0,
+  "ram": 16.0,
+  "storage": 300.0,
+  "region": "IN"
+}
+```
+
+### Example Response
+
+```json
+{
+  "cpu": 20.0,
+  "ram": 16.0,
+  "storage": 300.0,
+  "region": "IN",
+  "carbon_intensity": 700.0,
+  "predicted_emissions": 9.45
+}
+```
+
+> **Note:** Changing the region (e.g., from "IN" to "SE") will produce different predictions based on carbon intensity.
 
 ### GET `/logs` — Example Response
 
@@ -132,9 +159,45 @@ Swagger UI: http://127.0.0.1:8000/docs
 
 > If an unsupported region is provided, carbon intensity defaults to `500`.
 
+## Machine Learning Model Integration
+
+The `/predict` endpoint uses a trained **Linear Regression model** (`ml/model.pkl`) to predict emissions.
+
+**Model Features:**
+- CPU cores
+- RAM (GB)
+- Storage (GB)
+- Carbon intensity (gCO₂/kWh) based on region
+
+**Training:**
+
+The model was trained on 100 samples from `data/emissions_data.csv`.
+
+To retrain the model:
+
+```bash
+python ml/train_model.py
+```
+
+**Model Loading:**
+
+The model is loaded once during server startup using `joblib` for optimal performance.
+
+## Endpoint Comparison: `/calculate` vs `/predict`
+
+| Feature              | `/calculate`                     | `/predict`                       |
+|----------------------|----------------------------------|----------------------------------|
+| Method               | Formula-based                    | Machine Learning model           |
+| Formula              | `cpu×0.5 + ram×0.2 + storage×0.1`| Trained Linear Regression        |
+| Accuracy             | Fixed calculation                | Learned from training data       |
+| Database Logging     | Yes                              | No                               |
+| Use Case             | Quick estimation                 | Data-driven prediction           |
+
 ## Notes
 
 - Carbon intensity values are loaded from `data/carbon_intensity.csv`
 - `emissions` is in kg CO₂ (`energy (kWh) × carbon_intensity (gCO₂/kWh) / 1000`)
-- All calculations are automatically logged to MySQL database
+- `/calculate` logs are automatically saved to MySQL database
+- `/predict` uses ML model and does not log to database
 - If database connection fails, the API will continue to work but logs won't be saved
+- If ML model fails to load, `/predict` endpoint will return a 500 error
