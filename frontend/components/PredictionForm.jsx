@@ -39,6 +39,9 @@ export default function PredictionForm() {
 
       const response = await predictEmissions(data);
       setResult(response);
+      
+      // Trigger analytics refresh by dispatching custom event
+      window.dispatchEvent(new Event('predictionMade'));
     } catch (err) {
       setError('Failed to connect to backend. Please ensure the backend server is running.');
     } finally {

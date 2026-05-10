@@ -7,6 +7,8 @@ A modern Next.js frontend dashboard for the AI-Powered GHG (Greenhouse Gas) Plat
 - **Next.js** - React framework
 - **React** - UI library
 - **Tailwind CSS** - Styling
+- **Chart.js** - Data visualization
+- **react-chartjs-2** - React wrapper for Chart.js
 - **JavaScript** - Programming language
 
 ## Features
@@ -17,6 +19,11 @@ A modern Next.js frontend dashboard for the AI-Powered GHG (Greenhouse Gas) Plat
 - Live backend integration
 - Responsive design
 - Fast and lightweight
+- Analytics dashboard with charts
+- Historical data visualization
+- Recent calculations table
+- Emission trend line chart
+- Regional emissions bar chart
 
 ## Prerequisites
 
@@ -55,7 +62,8 @@ frontend/
 │   ├── layout.tsx        # Root layout
 │   └── globals.css       # Global styles
 ├── components/
-│   └── PredictionForm.jsx # Prediction form component
+│   ├── PredictionForm.jsx      # Prediction form component
+│   └── AnalyticsDashboard.jsx  # Analytics dashboard with charts
 ├── services/
 │   └── api.js            # Backend API integration
 ├── package.json
@@ -68,7 +76,9 @@ This frontend requires the FastAPI backend to be running.
 
 **Backend URL:** `http://127.0.0.1:8000`
 
-**Backend Endpoint:** `POST /predict`
+**Backend Endpoints:**
+- `POST /predict` - Get emission predictions
+- `GET /logs` - Fetch calculation history
 
 ### Start Backend Server
 
@@ -91,6 +101,10 @@ uvicorn main:app --reload
 6. **View results:**
    - Carbon intensity (gCO₂/kWh)
    - Predicted emissions (kg CO₂)
+7. **Explore Analytics Dashboard:**
+   - View emission trends over time
+   - Compare emissions by region
+   - Check recent calculation history
 
 ## API Integration
 
@@ -98,6 +112,7 @@ The frontend communicates with the backend using the `services/api.js` module:
 
 ```javascript
 predictEmissions(data) → POST /predict
+fetchLogs() → GET /logs
 ```
 
 **Request Format:**
@@ -158,15 +173,43 @@ predictEmissions(data) → POST /predict
 - Displays prediction results
 - Shows error messages
 
+**AnalyticsDashboard.jsx**
+- Fetches historical logs from backend
+- Displays emission trend line chart
+- Shows regional emissions bar chart
+- Renders recent calculations table
+- Handles loading and error states
+
 **page.tsx**
 - Main dashboard layout
 - Renders PredictionForm
+- Renders AnalyticsDashboard
 - Displays header and footer
 
 **api.js**
 - Backend communication
 - Error handling
 - API endpoint configuration
+
+## Analytics Dashboard
+
+The analytics dashboard provides visual insights into your emission calculations:
+
+### Emission Trend Chart (Line Chart)
+- Displays the last 10 emission calculations
+- Shows trend over time
+- Helps identify patterns in resource usage
+
+### Regional Emissions Chart (Bar Chart)
+- Compares average emissions across different regions
+- Aggregates data by region
+- Color-coded for easy identification
+
+### Recent Calculations Table
+- Shows the last 10 calculations
+- Displays CPU, RAM, Storage, Region, Emissions, and Timestamp
+- Sortable and scrollable
+- Refresh button to reload data
 
 ## Troubleshooting
 
@@ -179,6 +222,16 @@ predictEmissions(data) → POST /predict
 2. Check backend URL: `http://127.0.0.1:8000`
 3. Verify CORS is enabled in backend
 
+### Analytics Not Loading
+
+**Error:** "Failed to load analytics data"
+
+**Solution:**
+1. Ensure backend is running
+2. Make at least one prediction using `/calculate` endpoint
+3. Check that `/logs` endpoint is accessible
+4. Click the "Retry" button in the dashboard
+
 ### Port Already in Use
 
 **Error:** "Port 3000 is already in use"
@@ -189,14 +242,30 @@ predictEmissions(data) → POST /predict
 npm run dev -- -p 3001
 ```
 
+## Dependencies
+
+### Core Dependencies
+- `next` - Next.js framework
+- `react` - React library
+- `react-dom` - React DOM
+- `chart.js` - Charting library
+- `react-chartjs-2` - React wrapper for Chart.js
+
+### Dev Dependencies
+- `tailwindcss` - CSS framework
+- `eslint` - Code linting
+- `typescript` - Type checking
+
 ## Future Enhancements
 
-- [ ] Historical predictions chart
+- [ ] Export charts as images
 - [ ] Export results to CSV
 - [ ] Dark/Light mode toggle
 - [ ] Multiple prediction comparison
 - [ ] User authentication
 - [ ] Saved predictions
+- [ ] Date range filtering for analytics
+- [ ] More chart types (pie, doughnut)
 
 ## License
 

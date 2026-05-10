@@ -1,4 +1,5 @@
 import PredictionForm from '@/components/PredictionForm';
+import AnalyticsDashboard from '@/components/AnalyticsDashboard';
 
 export default function Home() {
   return (
@@ -16,6 +17,9 @@ export default function Home() {
 
         {/* Prediction Form */}
         <PredictionForm />
+
+        {/* Analytics Dashboard */}
+        <AnalyticsDashboard />
 
         {/* Footer Info */}
         <div className="mt-16 text-center">

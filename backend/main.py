@@ -1,4 +1,5 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from utils.carbon_data import get_carbon_intensity
 from db.database import create_table, insert_log, get_logs
@@ -8,11 +9,34 @@ import numpy as np
 
 app = FastAPI(title="GHG Platform Backend")
 
+# Manual CORS headers middleware
+@app.middleware("http")
+async def add_cors_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Credentials"] = "true"
+    response.headers["Access-Control-Allow-Methods"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "*"
+    return response
+
+# Handle OPTIONS requests
+@app.options("/{rest_of_path:path}")
+async def preflight_handler(rest_of_path: str):
+    return Response(
+        status_code=200,
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "*",
+            "Access-Control-Allow-Headers": "*",
+        },
+    )
+
 # Load ML model
 try:
     model_path = Path(__file__).parent / "ml" / "model.pkl"
     model = joblib.load(model_path)
     print(f"Model loaded successfully from {model_path}")
+    print("CORS middleware enabled for all origins")
 except Exception as e:
     print(f"Error loading model: {e}")
     model = None
