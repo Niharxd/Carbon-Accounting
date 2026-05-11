@@ -14,6 +14,8 @@ import {
   Legend,
 } from 'chart.js';
 import { fetchLogs } from '@/services/api';
+import { getToken } from '@/services/auth';
+import Link from 'next/link';
 
 // Register Chart.js components
 ChartJS.register(
@@ -31,8 +33,16 @@ export default function AnalyticsDashboard() {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [token, setToken] = useState(null);
+
+  // Read token client-side only
+  useEffect(() => {
+    setToken(getToken());
+  }, []);
 
   const loadLogs = async () => {
+    const t = getToken();
+    if (!t) { setLoading(false); return; }
     try {
       setLoading(true);
       const response = await fetchLogs();
@@ -47,19 +57,13 @@ export default function AnalyticsDashboard() {
   };
 
   useEffect(() => {
+    if (token === null) return; // still initializing
     loadLogs();
-    
-    // Listen for prediction events to auto-refresh
-    const handlePredictionMade = () => {
-      setTimeout(() => loadLogs(), 1000); // Delay to ensure DB is updated
-    };
-    
+
+    const handlePredictionMade = () => setTimeout(() => loadLogs(), 1000);
     window.addEventListener('predictionMade', handlePredictionMade);
-    
-    return () => {
-      window.removeEventListener('predictionMade', handlePredictionMade);
-    };
-  }, []);
+    return () => window.removeEventListener('predictionMade', handlePredictionMade);
+  }, [token]);
 
   // Prepare data for Emission Trend Line Chart
   const emissionTrendData = {
@@ -124,6 +128,25 @@ export default function AnalyticsDashboard() {
       },
     },
   };
+
+  if (!token) {
+    return (
+      <div className="w-full max-w-7xl mx-auto mt-12">
+        <div className="bg-gray-800 border border-gray-700 rounded-lg p-8 text-center">
+          <p className="text-gray-300 text-lg mb-2">Sign in to view your emission history</p>
+          <p className="text-gray-500 text-sm mb-6">Your personal analytics dashboard will appear here after login.</p>
+          <div className="flex justify-center gap-4">
+            <Link href="/login" className="px-6 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg transition font-medium">
+              Sign In
+            </Link>
+            <Link href="/signup" className="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition font-medium">
+              Sign Up
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

@@ -1,9 +1,11 @@
 import PredictionForm from '@/components/PredictionForm';
 import AnalyticsDashboard from '@/components/AnalyticsDashboard';
+import Navbar from '@/components/Navbar';
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+      <Navbar />
       <main className="container mx-auto px-4 py-16">
         {/* Header */}
         <div className="text-center mb-12">
