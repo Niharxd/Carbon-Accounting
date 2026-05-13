@@ -1,6 +1,6 @@
 # GHG Platform — Carbon Accounting System
 
-AI-Powered Greenhouse Gas (GHG) emission prediction platform with JWT authentication, machine learning backend, and analytics dashboard.
+AI-Powered Greenhouse Gas (GHG) emission prediction platform with JWT authentication, machine learning backend, and modern analytics dashboard.
 
 ## Quick Start
 
@@ -55,11 +55,15 @@ Carbon accounting/
 │   │   │   └── page.js           # Signup page
 │   │   ├── page.tsx              # Main dashboard
 │   │   ├── layout.tsx            # Root layout
-│   │   └── globals.css           # Global styles
+│   │   └── globals.css           # Global styles + animations
 │   ├── components/
-│   │   ├── Navbar.jsx            # Auth-aware navbar
+│   │   ├── Navbar.jsx            # Fixed top navbar with auth
+│   │   ├── Sidebar.jsx           # Collapsible navigation sidebar
 │   │   ├── PredictionForm.jsx    # Emission prediction form
-│   │   └── AnalyticsDashboard.jsx # Charts + logs table
+│   │   ├── AnalyticsDashboard.jsx # Charts + metrics + logs table
+│   │   ├── MetricCard.jsx        # Reusable metric display card
+│   │   ├── LoadingSpinner.jsx    # Reusable loading component
+│   │   └── EmptyState.jsx        # Reusable empty state component
 │   └── services/
 │       ├── auth.js               # Auth functions + token management
 │       └── api.js                # Emission API calls
@@ -69,6 +73,36 @@ Carbon accounting/
 ├── start-backend.bat             # Start backend only
 └── start-frontend.bat            # Start frontend only
 ```
+
+---
+
+## Features
+
+### Backend
+- FastAPI REST API
+- JWT authentication with bcrypt password hashing
+- Machine Learning predictions (Linear Regression)
+- MySQL database integration
+- Formula-based calculations
+- Historical logs storage per user
+- Multi-region carbon intensity support
+
+### Frontend
+- Modern Next.js dashboard with professional UI/UX
+- Fixed top navbar with user profile
+- Collapsible sidebar navigation (mobile responsive)
+- Real-time emission predictions
+- Interactive analytics dashboard:
+  - 4 metric cards (total predictions, avg emissions, carbon intensity, active region)
+  - Emission trend line chart
+  - Regional comparison bar chart
+  - Recent calculations table
+- Loading states and spinners
+- Empty states with helpful messages
+- Smooth animations and transitions
+- Fully responsive design (mobile, tablet, desktop)
+- Dark mode theme
+- Reusable component architecture
 
 ---
 
@@ -210,13 +244,41 @@ Uses `passlib` with `bcrypt==4.0.1` (pinned for compatibility):
 
 ---
 
-## Frontend
+## Frontend Dashboard
 
-- `/signup` — username, email, password form → redirects to `/login`
-- `/login` — email, password form → stores token → redirects to `/`
-- Navbar shows username + Logout when authenticated, Login + Sign Up when not
-- Analytics dashboard shows only the logged-in user's logs with charts and table
-- All errors displayed inline with red banners
+### Navigation
+- Fixed top navbar with logo, username, and logout
+- Collapsible sidebar with navigation links:
+  - Dashboard
+  - Predictions
+  - Analytics
+  - History
+  - Profile
+- Mobile responsive with overlay
+
+### Pages
+- `/` — Main dashboard with prediction form and analytics
+- `/login` — Email + password form → stores token → redirects to `/`
+- `/signup` — Username, email, password form → redirects to `/login`
+
+### Dashboard Components
+- Prediction form with improved validation and loading states
+- 4 metric cards showing key statistics
+- Emission trend line chart (last 10 predictions)
+- Regional emissions bar chart
+- Recent calculations table with hover effects
+- Empty states for no data scenarios
+- Loading spinners for async operations
+
+### UI/UX Improvements
+- Professional dark theme with gradient accents
+- Smooth animations and transitions
+- Hover effects on interactive elements
+- Responsive grid layouts
+- Custom scrollbar styling
+- Improved form focus states
+- Better error message displays
+- Reusable component architecture
 
 ---
 
@@ -265,3 +327,4 @@ requests
 - **Analytics not loading** — log out and log back in to get a fresh token, then make a prediction
 - **Signup "Failed to fetch"** — backend is not running, start it with `uvicorn main:app --reload`
 - **Port 3000 in use** — run `npm run dev -- -p 3001`
+- **Sidebar not showing** — ensure you're on desktop view or click the hamburger menu on mobile
