@@ -187,6 +187,28 @@ export default function PredictionForm() {
               </div>
             </div>
           </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 relative z-10">
+            <div className="group bg-gradient-to-br from-slate-800/50 to-slate-900/60 border border-slate-700/40 rounded-2xl p-6 shadow-lg shadow-slate-900/20 transition-all duration-300 hover:scale-[1.01] overflow-hidden relative">
+              <p className="text-slate-500 text-xs font-semibold uppercase tracking-widest mb-3">Efficiency Score</p>
+              <p className="text-4xl font-black text-emerald-300">{result.efficiency_score}</p>
+              <p className="text-slate-400 text-sm mt-2">Higher is better</p>
+            </div>
+            <div className="group bg-gradient-to-br from-slate-800/50 to-slate-900/60 border border-slate-700/40 rounded-2xl p-6 shadow-lg shadow-slate-900/20 transition-all duration-300 hover:scale-[1.01] overflow-hidden relative">
+              <p className="text-slate-500 text-xs font-semibold uppercase tracking-widest mb-3">Model Used</p>
+              <p className="text-3xl font-black text-blue-300">{result.model_used}</p>
+              <p className="text-slate-400 text-sm mt-2">Best-performing model</p>
+            </div>
+            <div className={`group rounded-2xl p-6 shadow-lg transition-all duration-300 ${result.anomaly_detected ? 'bg-red-600/20 border border-red-500/40 shadow-red-500/20 hover:scale-[1.01]' : 'bg-emerald-600/15 border border-emerald-500/30 shadow-emerald-500/15 hover:scale-[1.01]'}`}>
+              <p className="text-xs font-semibold uppercase tracking-widest mb-3">Anomaly Status</p>
+              <p className={`text-4xl font-black ${result.anomaly_detected ? 'text-red-200' : 'text-emerald-200'}`}>
+                {result.anomaly_detected ? 'Alert' : 'Normal'}
+              </p>
+              <p className={`text-sm mt-2 ${result.anomaly_detected ? 'text-red-100' : 'text-slate-300'}`}>
+                {result.anomaly_detected ? 'Unusually high emissions detected' : 'Emissions are within expected range'}
+              </p>
+            </div>
+          </div>
         </div>
       )}
     </section>

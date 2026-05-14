@@ -5,7 +5,7 @@ import {
   Chart as ChartJS, CategoryScale, LinearScale, PointElement,
   LineElement, BarElement, Title, Tooltip, Legend,
 } from 'chart.js';
-import { fetchLogs } from '@/services/api';
+import { fetchLogs, fetchModelMetrics } from '@/services/api';
 import { getToken } from '@/services/auth';
 import Link from 'next/link';
 import MetricCard from './MetricCard';
@@ -45,6 +45,8 @@ export default function AnalyticsDashboard() {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [modelMetrics, setModelMetrics] = useState(null);
+  const [metricsError, setMetricsError] = useState(null);
   const [token, setToken] = useState(null);
 
   useEffect(() => { setToken(getToken()); }, []);
@@ -63,10 +65,24 @@ export default function AnalyticsDashboard() {
     }
   };
 
+  const loadModelMetrics = async () => {
+    try {
+      const res = await fetchModelMetrics();
+      setModelMetrics(res);
+      setMetricsError(null);
+    } catch {
+      setMetricsError('Failed to load model metrics.');
+    }
+  };
+
   useEffect(() => {
     if (token === null) return;
     loadLogs();
-    const handler = () => setTimeout(loadLogs, 1000);
+    loadModelMetrics();
+    const handler = () => setTimeout(() => {
+      loadLogs();
+      loadModelMetrics();
+    }, 1000);
     window.addEventListener('predictionMade', handler);
     return () => window.removeEventListener('predictionMade', handler);
   }, [token]);
@@ -183,6 +199,19 @@ export default function AnalyticsDashboard() {
         <MetricCard title="Peak Emission" value={maxEmission} unit="kg CO₂" icon="⚡" color="orange" />
         <MetricCard title="Top Region" value={topRegion} icon="🌍" color="purple" />
       </div>
+
+      {modelMetrics && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          <MetricCard title="Active Model" value={modelMetrics.model_name || 'Unknown'} icon="🧠" color="purple" />
+          <MetricCard title="Training Score" value={modelMetrics.training_score?.toFixed(3) ?? '—'} icon="📈" color="blue" />
+          <MetricCard title="Testing Score" value={modelMetrics.testing_score?.toFixed(3) ?? '—'} icon="✅" color="green" />
+        </div>
+      )}
+      {metricsError && (
+        <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">
+          {metricsError}
+        </div>
+      )}
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

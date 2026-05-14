@@ -161,7 +161,8 @@ Uses `passlib` with `bcrypt==4.0.1` (pinned for compatibility):
 | POST   | `/signup`    | No       | Register new user                  |
 | POST   | `/login`     | No       | Login, returns JWT token           |
 | POST   | `/calculate` | Optional | Calculate emissions (logs if auth) |
-| POST   | `/predict`   | No       | ML-based emission prediction       |
+| POST   | `/predict`   | No       | ML-based emission prediction with efficiency score and anomaly detection |
+| GET    | `/model-metrics` | No   | Returns current model name, training score, and testing score |
 | GET    | `/logs`      | ✅ Yes   | Fetch current user's logs only     |
 
 ### POST `/signup`
@@ -237,9 +238,13 @@ Uses `passlib` with `bcrypt==4.0.1` (pinned for compatibility):
 
 ## ML Model
 
-- Algorithm: Linear Regression
+- Algorithms: Linear Regression and Random Forest
 - Features: CPU, RAM, Storage, Carbon Intensity
 - Trained on: `data/emissions_data.csv` (100 samples)
+- Best-performing model is selected automatically and saved to `backend/ml/model.pkl`
+- Model metadata is stored in `backend/ml/model_metrics.json`
+- Anomaly detection logic: `predicted_emissions > (mean + 2 * std_dev)`
+- Efficiency score is a simple 0–100 rating where lower predicted emissions result in a higher score
 - To retrain: `py -3.13 ml/train_model.py`
 
 ---

@@ -1,0 +1,18 @@
+{
+  "model_name": "Random Forest",
+  "training_score": 0.9994999787478384,
+  "testing_score": 0.9974257714353346,
+  "emissions_mean": 18.804211323529415,
+  "emissions_std": 12.463932147191015,
+  "anomaly_threshold": 43.73207561791145,
+  "models": {
+    "Linear Regression": {
+      "training_score": 0.9934429767421294,
+      "testing_score": 0.9911011019056238
+    },
+    "Random Forest": {
+      "training_score": 0.9994999787478384,
+      "testing_score": 0.9974257714353346
+    }
+  }
+}

@@ -1,3 +1,4 @@
+import json
 from fastapi import FastAPI, HTTPException, Request, Response, Depends, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, EmailStr
@@ -11,6 +12,7 @@ from auth.auth import (
 import joblib
 from pathlib import Path
 import numpy as np
+import pandas as pd
 
 app = FastAPI(title="GHG Platform Backend")
 
@@ -37,18 +39,56 @@ async def preflight_handler(rest_of_path: str):
     )
 
 
-try:
+def load_model_and_metrics():
     model_path = Path(__file__).parent / "ml" / "model.pkl"
-    model = joblib.load(model_path)
-    print(f"Model loaded from {model_path}")
-except Exception as e:
-    print(f"Error loading model: {e}")
-    model = None
+    metrics_path = Path(__file__).parent / "ml" / "model_metrics.json"
+
+    loaded_model = None
+    loaded_metrics = {}
+
+    try:
+        loaded_model = joblib.load(model_path)
+        print(f"Model loaded from {model_path}")
+    except Exception as e:
+        print(f"Error loading model: {e}")
+        loaded_model = None
+
+    if metrics_path.exists():
+        try:
+            loaded_metrics = json.loads(metrics_path.read_text())
+        except Exception as e:
+            print(f"Error loading model metrics: {e}")
+            loaded_metrics = {}
+    else:
+        print(f"Metrics file not found at {metrics_path}")
+
+    return loaded_model, loaded_metrics
+
+
+model, model_metrics = load_model_and_metrics()
 
 
 @app.on_event("startup")
 def startup():
     create_table()
+
+
+def get_current_model_name():
+    if model_metrics and model_metrics.get("model_name"):
+        return model_metrics["model_name"]
+    return model.__class__.__name__ if model else "Unknown"
+
+
+def get_anomaly_threshold():
+    return float(model_metrics.get("anomaly_threshold", 0))
+
+
+def compute_efficiency_score(predicted_emissions: float) -> int:
+    threshold = get_anomaly_threshold()
+    if threshold <= 0:
+        return 0
+    score = int(round(100 * (1 - predicted_emissions / threshold)))
+    return max(0, min(100, score))
 
 
 # ── Schemas ───────────────────────────────────────────────────────────────────
@@ -132,15 +172,37 @@ def predict_emissions(data: PredictionInput):
         raise HTTPException(status_code=500, detail="Model not loaded")
     try:
         carbon_intensity = get_carbon_intensity(data.region)
-        features = np.array([[data.cpu, data.ram, data.storage, carbon_intensity]])
+        features = pd.DataFrame(
+            [[data.cpu, data.ram, data.storage, carbon_intensity]],
+            columns=["cpu", "ram", "storage", "carbon_intensity"],
+        )
         predicted_emissions = float(model.predict(features)[0])
+
+        anomaly_threshold = get_anomaly_threshold()
+        anomaly_detected = predicted_emissions > anomaly_threshold if anomaly_threshold > 0 else False
+        efficiency_score = compute_efficiency_score(predicted_emissions)
+
         return {
             "cpu": data.cpu,
             "ram": data.ram,
             "storage": data.storage,
             "region": data.region,
             "carbon_intensity": carbon_intensity,
-            "predicted_emissions": predicted_emissions
+            "predicted_emissions": predicted_emissions,
+            "efficiency_score": efficiency_score,
+            "anomaly_detected": anomaly_detected,
+            "model_used": get_current_model_name(),
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Prediction error: {str(e)}")
+
+
+@app.get("/model-metrics")
+def get_model_metrics():
+    if not model_metrics:
+        raise HTTPException(status_code=500, detail="Model metrics are not available")
+    return {
+        "model_name": model_metrics.get("model_name", "Unknown"),
+        "training_score": model_metrics.get("training_score"),
+        "testing_score": model_metrics.get("testing_score"),
+    }

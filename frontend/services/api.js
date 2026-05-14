@@ -33,6 +33,12 @@ export async function predictEmissions(data) {
   return result;
 }
 
+export async function fetchModelMetrics() {
+  const res = await fetch(`${API_BASE_URL}/model-metrics`);
+  if (!res.ok) throw new Error('Failed to fetch model metrics');
+  return res.json();
+}
+
 export async function fetchLogs() {
   const token = getToken();
   if (!token) throw new Error('Not authenticated');
