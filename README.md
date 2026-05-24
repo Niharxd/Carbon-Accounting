@@ -1,203 +1,177 @@
 # GHG Platform — Carbon Accounting System
 
-AI-Powered Greenhouse Gas (GHG) emission prediction platform with JWT authentication, machine learning backend, and modern analytics dashboard.
+AI-powered greenhouse gas emission prediction platform with a Vite + React frontend, FastAPI backend, JWT authentication, and MySQL persistence.
 
-# Quick Start
+## Quick Start
 
-**Option 1 — Start everything at once:**
+### 1. Backend setup
 
-Double-click `start-all.bat` — launches both backend and frontend in separate windows.
-
-**Option 2 — Start individually:**
-
-```bash
-# Backend
+```powershell
 cd backend
-pip install -r requirements.txt
-uvicorn main:app --reload
+python -m pip install -r requirements.txt
+python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000
+```
 
-# Frontend (new terminal)
+The backend will be available at `http://127.0.0.1:8000`.
+
+### 2. Frontend setup
+
+```powershell
 cd frontend
 npm install
 npm run dev
 ```
 
-- Frontend: http://localhost:5173
-- Backend API docs: http://127.0.0.1:8000/docs
+The frontend will be available at `http://localhost:5173`.
+
+### 3. Run both together
+
+Use the provided batch files:
+
+- `start-backend.bat`
+- `start-frontend.bat`
+- `start-all.bat`
 
 ---
 
-## Project Structure
+## Current Project Structure
 
 ```
 Carbon accounting/
 ├── backend/
 │   ├── auth/
-│   │   └── auth.py               # JWT + password hashing
-│   ├── data/
-│   │   ├── carbon_intensity.csv  # Region → carbon intensity values
-│   │   └── emissions_data.csv    # Training data for ML model
+│   │   └── auth.py
 │   ├── db/
-│   │   └── database.py           # MySQL connection + CRUD
+│   │   └── database.py
 │   ├── ml/
-│   │   ├── model.pkl             # Trained Linear Regression model
-│   │   └── train_model.py        # Script to retrain the model
+│   │   ├── model.pkl
+│   │   └── model_metrics.json
+│   ├── scripts/
+│   │   ├── create_mysql_user.py
+│   │   └── test_create_user.py
 │   ├── utils/
-│   │   └── carbon_data.py        # Carbon intensity lookup by region
-│   ├── main.py                   # FastAPI app + all routes
+│   │   └── carbon_data.py
+│   ├── main.py
 │   └── requirements.txt
-│
 ├── frontend/
 │   ├── index.html
 │   ├── package.json
 │   ├── postcss.config.js
 │   ├── tailwind.config.js
 │   ├── vite.config.js
-│   ├── .env.example
-│   ├── README.md
 │   ├── src/
 │   │   ├── App.jsx
 │   │   ├── main.jsx
 │   │   ├── index.css
 │   │   ├── pages/
-│   │   │   ├── Analytics.jsx
-│   │   │   ├── Dashboard.jsx
-│   │   │   ├── Login.jsx
-│   │   │   └── Signup.jsx
 │   │   ├── components/
-│   │   │   ├── AnalyticsDashboard.jsx
-│   │   │   ├── EmptyState.jsx
-│   │   │   ├── LoadingSpinner.jsx
-│   │   │   ├── MetricCard.jsx
-│   │   │   ├── Navbar.jsx
-│   │   │   ├── PredictionForm.jsx
-│   │   │   └── Sidebar.jsx
 │   │   └── services/
-│   │       ├── api.js
-│   │       └── auth.js
-│
+│   └── README.md
 ├── README.md
-├── start-all.bat                 # Start both servers
-├── start-backend.bat             # Start backend only
-└── start-frontend.bat            # Start frontend only
+├── start-all.bat
+├── start-backend.bat
+└── start-frontend.bat
 ```
-
----
-
-## Features
-
-### Backend
-- FastAPI REST API
-- JWT authentication with bcrypt password hashing
-- Machine Learning predictions (Linear Regression)
-- MySQL database integration
-- Formula-based calculations
-- Historical logs storage per user
-- Multi-region carbon intensity support
-
-### Frontend
-- Modern Next.js dashboard with professional UI/UX
-- Fixed top navbar with user profile
-- Collapsible sidebar navigation (mobile responsive)
-- Real-time emission predictions
-- Interactive analytics dashboard:
-  - 4 metric cards (total predictions, avg emissions, carbon intensity, active region)
-  - Emission trend line chart
-  - Regional comparison bar chart
-  - Recent calculations table
-- Loading states and spinners
-- Empty states with helpful messages
-- Smooth animations and transitions
-- Fully responsive design (mobile, tablet, desktop)
-- Dark mode theme
-- Reusable component architecture
 
 ---
 
 ## Prerequisites
 
-- Python 3.8+ and MySQL Server
+- Python 3.10+ (or 3.11/3.14)
 - Node.js 18+
+- MySQL Server
 
-### MySQL Setup
+> SQLite is not used in this project. The backend requires a working MySQL database.
 
-```sql
-CREATE DATABASE ghg_db;
-```
+### MySQL setup
 
-Update credentials in `backend/db/database.py`:
+If MySQL is installed and running, use the helper script in `backend/scripts/create_mysql_user.py` or configure your own credentials in `backend/db/database.py`.
+
+`backend/db/database.py` currently uses:
+
 ```python
-host="localhost", user="root", password="your_password", database="ghg_db"
+host="localhost"
+user="root"
+password="newpassword123"
+database="ghg_db"
 ```
 
-Tables (`users`, `usage_logs`) are created automatically on first startup.
+If you need to change credentials, update those values and restart the backend.
 
 ---
 
-## Authentication
+## Backend behavior
 
-### Flow
+- `POST /signup` registers a new user.
+- `POST /login` returns a JWT token.
+- `POST /calculate` computes emissions and stores logs when the request is authenticated.
+- `POST /predict` returns ML-based emission predictions.
+- `GET /logs` returns the authenticated user's history.
+- `GET /model-metrics` returns model metadata.
 
-1. `POST /signup` → creates account, bcrypt-hashes password
-2. `POST /login` → returns JWT access token
-3. Frontend stores token in `localStorage` under key `token`
-4. Protected requests send `Authorization: Bearer <token>`
+The backend also creates the required tables automatically during startup.
 
-### JWT Config
+---
 
-| Setting      | Value                         |
-|--------------|-------------------------------|
-| Algorithm    | HS256                         |
-| Token expiry | 24 hours                      |
-| Secret key   | `auth/auth.py` → `SECRET_KEY` |
+## Frontend behavior
 
-> Change `SECRET_KEY` to a strong random value in production.
+The frontend is built with Vite, React, Tailwind CSS, and React Router.
 
-### Password Hashing
+Features:
 
-Uses `passlib` with `bcrypt==4.0.1` (pinned for compatibility):
-- `hash_password(password)` — returns bcrypt hash
-- `verify_password(plain, hashed)` — returns bool
+- Login and signup flow
+- Dashboard with prediction form
+- Analytics page with charts and model metrics
+- Protected routes for authenticated actions
+- Responsive layout for desktop and mobile
 
 ---
 
 ## API Endpoints
 
-| Method | Endpoint     | Auth     | Description                        |
-|--------|--------------|----------|------------------------------------|
-| GET    | `/`          | No       | Health check                       |
-| POST   | `/signup`    | No       | Register new user                  |
-| POST   | `/login`     | No       | Login, returns JWT token           |
-| POST   | `/calculate` | Optional | Calculate emissions (logs if auth) |
-| POST   | `/predict`   | No       | ML-based emission prediction with efficiency score and anomaly detection |
-| GET    | `/model-metrics` | No   | Returns current model name, training score, and testing score |
-| GET    | `/logs`      | ✅ Yes   | Fetch current user's logs only     |
+| Method | Endpoint         | Auth required | Description |
+|--------|------------------|---------------|-------------|
+| GET    | `/`              | No            | Health check |
+| POST   | `/signup`        | No            | Register a new user |
+| POST   | `/login`         | No            | Login and receive JWT |
+| POST   | `/calculate`     | Optional      | Calculate emissions; optional auth logs the result |
+| POST   | `/predict`       | No            | ML-based prediction with efficiency score |
+| GET    | `/model-metrics` | No            | Get model name and scores |
+| GET    | `/logs`          | Yes           | Fetch user-specific logs |
 
-### POST `/signup`
+### Example requests
+
+`POST /signup`
+
 ```json
 { "username": "johndoe", "email": "john@example.com", "password": "secret123" }
 ```
-```json
-{ "message": "User created successfully" }
-```
 
-### POST `/login`
+`POST /login`
+
 ```json
 { "email": "john@example.com", "password": "secret123" }
 ```
-```json
-{ "access_token": "eyJhbGci...", "token_type": "bearer" }
-```
 
-### POST `/calculate` or `/predict`
+`POST /calculate`
+
 ```json
 { "cpu": 20.0, "ram": 16.0, "storage": 300.0, "region": "IN" }
 ```
 
-`/calculate` response:
+`POST /predict`
+
 ```json
-{ "energy": 43.2, "carbon_intensity": 700.0, "emissions": 30.24 }
+{ "cpu": 20.0, "ram": 16.0, "storage": 300.0, "region": "IN" }
 ```
+
+---
+
+## Notes
+
+- The current auth implementation uses `passlib` with `pbkdf2_sha256`.
+- The frontend expects the backend API base URL to be set via `VITE_API_URL`.
+- The repository is configured to run the backend on `127.0.0.1:8000` and frontend on `localhost:5173`.
 
 `/predict` response:
 ```json
