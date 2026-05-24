@@ -2,7 +2,7 @@
 
 AI-Powered Greenhouse Gas (GHG) emission prediction platform with JWT authentication, machine learning backend, and modern analytics dashboard.
 
-## Quick Start
+# Quick Start
 
 **Option 1 — Start everything at once:**
 
@@ -22,7 +22,7 @@ npm install
 npm run dev
 ```
 
-- Frontend: http://localhost:3000
+- Frontend: http://localhost:5173
 - Backend API docs: http://127.0.0.1:8000/docs
 
 ---
@@ -48,25 +48,33 @@ Carbon accounting/
 │   └── requirements.txt
 │
 ├── frontend/
-│   ├── app/
-│   │   ├── login/
-│   │   │   └── page.js           # Login page
-│   │   ├── signup/
-│   │   │   └── page.js           # Signup page
-│   │   ├── page.tsx              # Main dashboard
-│   │   ├── layout.tsx            # Root layout
-│   │   └── globals.css           # Global styles + animations
-│   ├── components/
-│   │   ├── Navbar.jsx            # Fixed top navbar with auth
-│   │   ├── Sidebar.jsx           # Collapsible navigation sidebar
-│   │   ├── PredictionForm.jsx    # Emission prediction form
-│   │   ├── AnalyticsDashboard.jsx # Charts + metrics + logs table
-│   │   ├── MetricCard.jsx        # Reusable metric display card
-│   │   ├── LoadingSpinner.jsx    # Reusable loading component
-│   │   └── EmptyState.jsx        # Reusable empty state component
-│   └── services/
-│       ├── auth.js               # Auth functions + token management
-│       └── api.js                # Emission API calls
+│   ├── index.html
+│   ├── package.json
+│   ├── postcss.config.js
+│   ├── tailwind.config.js
+│   ├── vite.config.js
+│   ├── .env.example
+│   ├── README.md
+│   ├── src/
+│   │   ├── App.jsx
+│   │   ├── main.jsx
+│   │   ├── index.css
+│   │   ├── pages/
+│   │   │   ├── Analytics.jsx
+│   │   │   ├── Dashboard.jsx
+│   │   │   ├── Login.jsx
+│   │   │   └── Signup.jsx
+│   │   ├── components/
+│   │   │   ├── AnalyticsDashboard.jsx
+│   │   │   ├── EmptyState.jsx
+│   │   │   ├── LoadingSpinner.jsx
+│   │   │   ├── MetricCard.jsx
+│   │   │   ├── Navbar.jsx
+│   │   │   ├── PredictionForm.jsx
+│   │   │   └── Sidebar.jsx
+│   │   └── services/
+│   │       ├── api.js
+│   │       └── auth.js
 │
 ├── README.md
 ├── start-all.bat                 # Start both servers

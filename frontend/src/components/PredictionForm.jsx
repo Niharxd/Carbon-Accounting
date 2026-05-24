@@ -1,6 +1,5 @@
-'use client';
 import { useState } from 'react';
-import { predictEmissions } from '@/services/api';
+import { predictEmissions } from '../services/api';
 import LoadingSpinner from './LoadingSpinner';
 
 const regions = [
@@ -18,24 +17,28 @@ export default function PredictionForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const handleChange = (e) => setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     setLoading(true);
     setError(null);
     setResult(null);
+
     try {
-      const res = await predictEmissions({
+      const response = await predictEmissions({
         cpu: parseFloat(form.cpu),
         ram: parseFloat(form.ram),
         storage: parseFloat(form.storage),
         region: form.region,
       });
-      setResult(res);
+      setResult(response);
       window.dispatchEvent(new Event('predictionMade'));
-    } catch {
-      setError('Could not reach backend. Make sure the server is running.');
+    } catch (err) {
+      setError(err.message || 'Could not reach backend. Make sure the server is running.');
     } finally {
       setLoading(false);
     }
@@ -56,16 +59,15 @@ export default function PredictionForm() {
       </div>
 
       <div className="glass border border-emerald-500/30 rounded-3xl p-10 shadow-2xl shadow-emerald-500/20 backdrop-blur-xl overflow-hidden relative">
-        {/* Decorative elements */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl -mr-40 -mt-40"></div>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl -mr-40 -mt-40" />
 
         <form onSubmit={handleSubmit} className="space-y-8 relative z-10">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {[
-              { name: 'cpu', label: 'CPU Cores', placeholder: 'e.g. 8', icon: '⚙️', color: 'from-blue-500' },
-              { name: 'ram', label: 'RAM (GB)', placeholder: 'e.g. 16', icon: '💾', color: 'from-purple-500' },
-              { name: 'storage', label: 'Storage (GB)', placeholder: 'e.g. 500', icon: '📦', color: 'from-orange-500' },
-            ].map(field => (
+              { name: 'cpu', label: 'CPU Cores', placeholder: 'e.g. 8', icon: '⚙️' },
+              { name: 'ram', label: 'RAM (GB)', placeholder: 'e.g. 16', icon: '💾' },
+              { name: 'storage', label: 'Storage (GB)', placeholder: 'e.g. 500', icon: '📦' },
+            ].map((field) => (
               <div key={field.name} className="group space-y-2.5">
                 <label className="flex items-center gap-2.5 text-sm font-bold text-slate-100 group-hover:text-emerald-300 transition-colors">
                   <span className="text-lg">{field.icon}</span>
@@ -80,9 +82,8 @@ export default function PredictionForm() {
                     required
                     step="0.1"
                     placeholder={field.placeholder}
-                    className="w-full bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 text-white rounded-xl px-5 py-3.5 text-sm placeholder-slate-600 focus:outline-none focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-400/30 transition-all duration-200 group-hover:border-emerald-500/40"
+                    className="w-full bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 text-white rounded-xl px-5 py-3.5 text-sm placeholder-slate-600 focus:outline-none focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-400/30 transition-all duration-200"
                   />
-                  <div className={`absolute right-3 top-1/2 -translate-y-1/2 text-2xl opacity-0 group-hover:opacity-30 transition-opacity`}>{field.icon}</div>
                 </div>
               </div>
             ))}
@@ -97,11 +98,11 @@ export default function PredictionForm() {
                   name="region"
                   value={form.region}
                   onChange={handleChange}
-                  className="w-full appearance-none bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 text-white rounded-xl px-5 py-3.5 text-sm focus:outline-none focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-400/30 transition-all duration-200 group-hover:border-emerald-500/40 cursor-pointer font-medium"
+                  className="w-full appearance-none bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 text-white rounded-xl px-5 py-3.5 text-sm focus:outline-none focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-400/30 transition-all duration-200 cursor-pointer font-medium"
                 >
-                  {regions.map(r => (
-                    <option key={r.value} value={r.value}>
-                      {r.flag} {r.label} — {r.intensity} gCO₂/kWh
+                  {regions.map((region) => (
+                    <option key={region.value} value={region.value}>
+                      {region.flag} {region.label} — {region.intensity} gCO₂/kWh
                     </option>
                   ))}
                 </select>
@@ -141,25 +142,23 @@ export default function PredictionForm() {
         </form>
       </div>
 
-      {/* Result */}
       {result && (
         <div className="glass border border-emerald-500/40 rounded-3xl p-10 space-y-8 animate-fadeInUp shadow-2xl shadow-emerald-500/20 backdrop-blur-xl overflow-hidden relative">
-          {/* Decorative elements */}
-          <div className="absolute top-0 left-0 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl -ml-40 -mt-40"></div>
+          <div className="absolute top-0 left-0 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl -ml-40 -mt-40" />
 
           <div className="relative z-10">
             <h3 className="text-4xl font-black bg-gradient-to-r from-emerald-300 to-teal-300 bg-clip-text text-transparent mb-2">✨ Results</h3>
             <p className="text-slate-400 text-lg">Your carbon emissions prediction</p>
           </div>
-          
+
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 relative z-10">
             {[
-              { label: 'CPU', value: `${result.cpu}`, unit: 'cores', icon: '⚙️' },
-              { label: 'RAM', value: `${result.ram}`, unit: 'GB', icon: '💾' },
-              { label: 'Storage', value: `${result.storage}`, unit: 'GB', icon: '📦' },
-              { label: 'Region', value: result.region, unit: '', icon: '🌍' },
-            ].map((item, i) => (
-              <div key={i} className="group bg-gradient-to-br from-slate-800/40 to-slate-900/40 hover:from-slate-700/60 hover:to-slate-800/40 rounded-xl p-5 border border-slate-600/40 hover:border-emerald-500/40 transition-all duration-300 hover:scale-105">
+              { label: 'CPU', value: `${result.cpu}`, unit: 'cores' },
+              { label: 'RAM', value: `${result.ram}`, unit: 'GB' },
+              { label: 'Storage', value: `${result.storage}`, unit: 'GB' },
+              { label: 'Region', value: result.region, unit: '' },
+            ].map((item) => (
+              <div key={item.label} className="group bg-gradient-to-br from-slate-800/40 to-slate-900/40 hover:from-slate-700/60 hover:to-slate-800/40 rounded-xl p-5 border border-slate-600/40 hover:border-emerald-500/40 transition-all duration-300 hover:scale-105">
                 <p className="text-slate-400 text-xs font-bold mb-2 uppercase tracking-wide">{item.label}</p>
                 <div className="flex items-baseline gap-1">
                   <p className="text-white font-black text-2xl">{item.value}</p>
@@ -170,16 +169,16 @@ export default function PredictionForm() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 relative z-10">
-            <div className="group bg-gradient-to-br from-blue-600/20 to-blue-700/10 hover:from-blue-600/30 hover:to-blue-700/15 border border-blue-500/40 rounded-2xl p-8 shadow-2xl shadow-blue-500/15 transition-all duration-300 hover:scale-105 hover:shadow-blue-500/25 cursor-default overflow-hidden relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-400/0 to-blue-500/0 group-hover:from-blue-400/5 group-hover:to-blue-500/5 transition-all duration-300"></div>
+            <div className="group bg-gradient-to-br from-blue-600/20 to-blue-700/10 hover:from-blue-600/30 hover:to-blue-700/15 border border-blue-500/40 rounded-2xl p-8 shadow-2xl shadow-blue-500/15 transition-all duration-300 hover:scale-105 overflow-hidden relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-400/0 to-blue-500/0 group-hover:from-blue-400/5 group-hover:to-blue-500/5 transition-all duration-300" />
               <div className="relative z-10">
                 <p className="text-blue-300 text-xs font-black uppercase tracking-widest mb-3">Carbon Intensity</p>
                 <p className="text-5xl font-black text-blue-400">{result.carbon_intensity}</p>
                 <p className="text-slate-400 text-sm font-semibold mt-3">gCO₂/kWh</p>
               </div>
             </div>
-            <div className="group bg-gradient-to-br from-emerald-600/20 to-teal-700/10 hover:from-emerald-600/30 hover:to-teal-700/15 border border-emerald-500/40 rounded-2xl p-8 shadow-2xl shadow-emerald-500/15 transition-all duration-300 hover:scale-105 hover:shadow-emerald-500/25 cursor-default overflow-hidden relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/0 to-emerald-500/0 group-hover:from-emerald-400/5 group-hover:to-emerald-500/5 transition-all duration-300"></div>
+            <div className="group bg-gradient-to-br from-emerald-600/20 to-teal-700/10 hover:from-emerald-600/30 hover:to-teal-700/15 border border-emerald-500/40 rounded-2xl p-8 shadow-2xl shadow-emerald-500/15 transition-all duration-300 hover:scale-105 overflow-hidden relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/0 to-emerald-500/0 group-hover:from-emerald-400/5 group-hover:to-emerald-500/5 transition-all duration-300" />
               <div className="relative z-10">
                 <p className="text-emerald-300 text-xs font-black uppercase tracking-widest mb-3">Predicted Emissions</p>
                 <p className="text-5xl font-black text-emerald-400">{result.predicted_emissions.toFixed(2)}</p>
