@@ -208,6 +208,22 @@ export default function PredictionForm() {
               </p>
             </div>
           </div>
+
+          <div className="relative z-10">
+            <div className={`rounded-3xl p-6 mt-6 border ${result.anomaly_detected ? 'border-red-500/30 bg-red-500/10' : 'border-emerald-500/30 bg-emerald-500/10'} text-sm text-slate-100`}> 
+              <p className="font-bold text-white mb-2">{result.anomaly_detected ? 'Warning:' : 'Status:'}</p>
+              <p>{result.anomaly_detected ? 'This prediction is above expected emission levels and may need immediate optimization.' : 'Emissions are within the normal range for this infrastructure profile.'}</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 relative z-10 mt-6">
+            {result.recommendations?.map((recommendation, index) => (
+              <div key={index} className="group bg-gradient-to-br from-slate-800/50 to-slate-900/60 border border-slate-700/40 rounded-3xl p-6 shadow-lg shadow-slate-900/20 transition-all duration-300 hover:scale-[1.01] overflow-hidden relative">
+                <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-3">Recommendation</p>
+                <p className="text-slate-100 text-sm leading-6">{recommendation}</p>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </section>

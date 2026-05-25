@@ -1,6 +1,6 @@
 # GHG Platform Frontend
 
-This frontend is a Vite + React + Tailwind CSS migration of the original Next.js UI.
+A Vite + React + Tailwind CSS frontend for the GHG Platform, now enhanced with analytics cards, anomaly warnings, and recommendation UI.
 
 ## Setup
 
@@ -18,7 +18,7 @@ cd frontend
 npm install
 ```
 
-4. Run the development server:
+4. Run the frontend server:
 
 ```bash
 npm run dev
@@ -26,17 +26,28 @@ npm run dev
 
 5. Open the app in your browser at the displayed Vite URL.
 
+## Features
+
+- Prediction form with real-time carbon analytics
+- Efficiency score display and green/yellow/red indicator logic
+- Anomaly warning banner for unusually high emissions
+- Recommendation cards with actionable carbon reduction guidance
+- Model metrics cards showing active model and score performance
+- Analytics dashboard with emission trends, region charts, and recent history
+
 ## Project Structure
 
-- `src/App.jsx` — React Router entrypoint and layout
-- `src/pages/` — page components for Dashboard, Login, Signup, Analytics
-- `src/components/` — reusable UI pieces
-- `src/services/` — API and auth integration
+- `src/App.jsx` — React Router entrypoint and app layout
+- `src/pages/` — main page components
+- `src/components/` — reusable UI components and analytics widgets
+- `src/services/` — backend API and authentication helpers
 - `src/index.css` — Tailwind global styles
 
 ## Notes
 
-- The backend API is unchanged.
 - JWT tokens are stored in `localStorage`.
-- Routing is handled with `react-router-dom`.
+- The frontend consumes new backend ML endpoints:
+  - `POST /predict`
+  - `GET /model-metrics`
+- Model metrics and recommendations are shown directly after each prediction.
 - Chart rendering uses `chart.js` and `react-chartjs-2`.

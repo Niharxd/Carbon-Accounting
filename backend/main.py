@@ -83,12 +83,48 @@ def get_anomaly_threshold():
     return float(model_metrics.get("anomaly_threshold", 0))
 
 
+def get_emissions_statistics():
+    return {
+        "mean": float(model_metrics.get("emissions_mean", 0)),
+        "std": float(model_metrics.get("emissions_std", 0)),
+        "threshold": get_anomaly_threshold(),
+    }
+
+
 def compute_efficiency_score(predicted_emissions: float) -> int:
-    threshold = get_anomaly_threshold()
-    if threshold <= 0:
-        return 0
-    score = int(round(100 * (1 - predicted_emissions / threshold)))
+    stats = get_emissions_statistics()
+    mean = stats["mean"] if stats["mean"] > 0 else 100
+    score = int(round(max(0, 100 * (1 - (predicted_emissions / max(mean, 1)) * 0.9))))
     return max(0, min(100, score))
+
+
+def generate_recommendations(predicted_emissions: float, carbon_intensity: float, region: str, storage: float) -> list:
+    recommendations = []
+    stats = get_emissions_statistics()
+    mean = stats["mean"]
+    std = stats["std"]
+
+    if predicted_emissions > stats["threshold"] and stats["threshold"] > 0:
+        recommendations.append("Unusually high emissions detected. Consider reducing workload or shifting to lower-carbon infrastructure.")
+    elif mean > 0 and predicted_emissions > mean:
+        recommendations.append("Current emissions are higher than average. Optimize compute and storage usage.")
+    else:
+        recommendations.append("Your predicted emissions are within a normal range. Keep optimizing for efficiency.")
+
+    if carbon_intensity > 300:
+        recommendations.append("Switch to region SE or another low-carbon region to reduce emissions.")
+    elif region.upper() != "SE":
+        recommendations.append("Try running workloads in region SE to lower carbon intensity.")
+
+    if storage > 500:
+        recommendations.append("Reduce storage usage where possible to improve efficiency.")
+    else:
+        recommendations.append("Storage usage is moderate. Maintain efficient storage policies.")
+
+    if len(recommendations) > 5:
+        recommendations = recommendations[:5]
+
+    return recommendations
 
 
 # ── Schemas ───────────────────────────────────────────────────────────────────
@@ -181,6 +217,7 @@ def predict_emissions(data: PredictionInput):
         anomaly_threshold = get_anomaly_threshold()
         anomaly_detected = predicted_emissions > anomaly_threshold if anomaly_threshold > 0 else False
         efficiency_score = compute_efficiency_score(predicted_emissions)
+        recommendations = generate_recommendations(predicted_emissions, carbon_intensity, data.region, data.storage)
 
         return {
             "cpu": data.cpu,
@@ -192,6 +229,7 @@ def predict_emissions(data: PredictionInput):
             "efficiency_score": efficiency_score,
             "anomaly_detected": anomaly_detected,
             "model_used": get_current_model_name(),
+            "recommendations": recommendations,
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Prediction error: {str(e)}")
@@ -199,10 +237,8 @@ def predict_emissions(data: PredictionInput):
 
 @app.get("/model-metrics")
 def get_model_metrics():
-    if not model_metrics:
-        raise HTTPException(status_code=500, detail="Model metrics are not available")
     return {
-        "model_name": model_metrics.get("model_name", "Unknown"),
+        "model_name": model_metrics.get("model_name", get_current_model_name()),
         "training_score": model_metrics.get("training_score"),
         "testing_score": model_metrics.get("testing_score"),
     }

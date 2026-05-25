@@ -1,10 +1,23 @@
 # GHG Platform — Carbon Accounting System
 
-AI-powered greenhouse gas emission prediction platform with a Vite + React frontend, FastAPI backend, JWT authentication, and MySQL persistence.
+A portfolio-ready emissions prediction platform with advanced ML analytics, anomaly detection, and recommendations.
+
+## What changed
+
+- Added Random Forest alongside Linear Regression
+- Automatically compare models using training and testing scores
+- Select and save the best model to `backend/ml/model.pkl`
+- Store model metadata in `backend/ml/model_metrics.json`
+- Add anomaly detection for unusually high emissions
+- Add an efficiency score from 0–100
+- Add rule-based carbon reduction recommendations
+- Extend `/predict` to return analytics, anomaly status, and recommendations
+- Add `/model-metrics` endpoint for live model reporting
+- Enhance frontend dashboard with model metrics, warning UI, and recommendation cards
 
 ## Quick Start
 
-### 1. Backend setup
+### Backend
 
 ```powershell
 cd backend
@@ -12,9 +25,7 @@ python -m pip install -r requirements.txt
 python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-The backend will be available at `http://127.0.0.1:8000`.
-
-### 2. Frontend setup
+### Frontend
 
 ```powershell
 cd frontend
@@ -22,11 +33,9 @@ npm install
 npm run dev
 ```
 
-The frontend will be available at `http://localhost:5173`.
+### Run both
 
-### 3. Run both together
-
-Use the provided batch files:
+Use the included batch files:
 
 - `start-backend.bat`
 - `start-frontend.bat`
