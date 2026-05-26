@@ -13,7 +13,9 @@ A portfolio-ready emissions prediction platform with advanced ML analytics, anom
 - Add rule-based carbon reduction recommendations
 - Extend `/predict` to return analytics, anomaly status, and recommendations
 - Add `/model-metrics` endpoint for live model reporting
-- Enhance frontend dashboard with model metrics, warning UI, and recommendation cards
+- Enhance frontend dashboard with model metrics, warning UI, recommendation cards, and polished analytics UI
+- Add richer dashboard metric cards with icons, trend visuals, grouped overview sections, and stronger CTA styling
+- Improve sidebar active state highlighting and navigation feedback
 
 ## Quick Start
 
@@ -131,6 +133,9 @@ Features:
 - Login and signup flow
 - Dashboard with prediction form
 - Analytics page with charts and model metrics
+- Enhanced dashboard card visuals, icons, and trend indicators
+- Stronger call-to-action and clearer page hierarchy
+- Sidebar active-route highlighting for better navigation feedback
 - Protected routes for authenticated actions
 - Responsive layout for desktop and mobile
 

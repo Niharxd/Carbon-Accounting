@@ -3,12 +3,12 @@ import { predictEmissions } from '../services/api';
 import LoadingSpinner from './LoadingSpinner';
 
 const regions = [
-  { value: 'IN', label: 'India', intensity: 700, flag: '🇮🇳' },
-  { value: 'US', label: 'United States', intensity: 400, flag: '🇺🇸' },
-  { value: 'CN', label: 'China', intensity: 650, flag: '🇨🇳' },
-  { value: 'DE', label: 'Germany', intensity: 300, flag: '🇩🇪' },
-  { value: 'FR', label: 'France', intensity: 80, flag: '🇫🇷' },
-  { value: 'SE', label: 'Sweden', intensity: 100, flag: '🇸🇪' },
+  { value: 'IN', label: 'India', intensity: 700 },
+  { value: 'US', label: 'United States', intensity: 400 },
+  { value: 'CN', label: 'China', intensity: 650 },
+  { value: 'DE', label: 'Germany', intensity: 300 },
+  { value: 'FR', label: 'France', intensity: 80 },
+  { value: 'SE', label: 'Sweden', intensity: 100 },
 ];
 
 export default function PredictionForm() {
@@ -58,20 +58,18 @@ export default function PredictionForm() {
         <p className="text-slate-400 text-lg mt-3">Enter your infrastructure specs for instant carbon footprint estimation</p>
       </div>
 
-      <div className="glass border border-emerald-500/30 rounded-3xl p-10 shadow-2xl shadow-emerald-500/20 backdrop-blur-xl overflow-hidden relative">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl -mr-40 -mt-40" />
+      <div className="bg-slate-900/90 border border-emerald-500/30 rounded-3xl p-10 shadow-lg shadow-emerald-500/15 overflow-hidden relative">
 
         <form onSubmit={handleSubmit} className="space-y-8 relative z-10">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {[
-              { name: 'cpu', label: 'CPU Cores', placeholder: 'e.g. 8', icon: '⚙️' },
-              { name: 'ram', label: 'RAM (GB)', placeholder: 'e.g. 16', icon: '💾' },
-              { name: 'storage', label: 'Storage (GB)', placeholder: 'e.g. 500', icon: '📦' },
+              { name: 'cpu', label: 'CPU Cores', placeholder: 'e.g. 8' },
+              { name: 'ram', label: 'RAM (GB)', placeholder: 'e.g. 16' },
+              { name: 'storage', label: 'Storage (GB)', placeholder: 'e.g. 500' },
             ].map((field) => (
               <div key={field.name} className="group space-y-2.5">
-                <label className="flex items-center gap-2.5 text-sm font-bold text-slate-100 group-hover:text-emerald-300 transition-colors">
-                  <span className="text-lg">{field.icon}</span>
-                  <span>{field.label}</span>
+                <label className="text-sm font-bold text-slate-100 group-hover:text-emerald-300 transition-colors">
+                  {field.label}
                 </label>
                 <div className="relative">
                   <input
@@ -89,9 +87,8 @@ export default function PredictionForm() {
             ))}
 
             <div className="group space-y-2.5">
-              <label className="flex items-center gap-2.5 text-sm font-bold text-slate-100 group-hover:text-emerald-300 transition-colors">
-                <span className="text-lg">🌍</span>
-                <span>Region</span>
+              <label className="text-sm font-bold text-slate-100 group-hover:text-emerald-300 transition-colors">
+                Region
               </label>
               <div className="relative">
                 <select
@@ -102,11 +99,10 @@ export default function PredictionForm() {
                 >
                   {regions.map((region) => (
                     <option key={region.value} value={region.value}>
-                      {region.flag} {region.label} — {region.intensity} gCO₂/kWh
+                      {region.label} — {region.intensity} gCO₂/kWh
                     </option>
                   ))}
                 </select>
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-lg pointer-events-none">🌍</div>
               </div>
             </div>
           </div>
@@ -132,7 +128,7 @@ export default function PredictionForm() {
               </>
             ) : (
               <>
-                <span>⚡ Run Prediction</span>
+                <span>Run Prediction</span>
                 <svg className="w-6 h-6 group-hover:translate-x-2 group-hover:scale-110 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
@@ -143,11 +139,10 @@ export default function PredictionForm() {
       </div>
 
       {result && (
-        <div className="glass border border-emerald-500/40 rounded-3xl p-10 space-y-8 animate-fadeInUp shadow-2xl shadow-emerald-500/20 backdrop-blur-xl overflow-hidden relative">
-          <div className="absolute top-0 left-0 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl -ml-40 -mt-40" />
+<div className="bg-slate-900/90 border border-emerald-500/40 rounded-3xl p-10 space-y-8 animate-fadeInUp shadow-lg shadow-emerald-500/15 overflow-hidden relative">
 
           <div className="relative z-10">
-            <h3 className="text-4xl font-black bg-gradient-to-r from-emerald-300 to-teal-300 bg-clip-text text-transparent mb-2">✨ Results</h3>
+            <h3 className="text-4xl font-black bg-gradient-to-r from-emerald-300 to-teal-300 bg-clip-text text-transparent mb-2">Results</h3>
             <p className="text-slate-400 text-lg">Your carbon emissions prediction</p>
           </div>
 
@@ -169,7 +164,7 @@ export default function PredictionForm() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 relative z-10">
-            <div className="group bg-gradient-to-br from-blue-600/20 to-blue-700/10 hover:from-blue-600/30 hover:to-blue-700/15 border border-blue-500/40 rounded-2xl p-8 shadow-2xl shadow-blue-500/15 transition-all duration-300 hover:scale-105 overflow-hidden relative">
+            <div className="group bg-gradient-to-br from-blue-600/20 to-blue-700/10 hover:from-blue-600/30 hover:to-blue-700/15 border border-blue-500/40 rounded-2xl p-8 shadow-lg shadow-blue-500/15 transition-all duration-300 hover:scale-105 overflow-hidden relative">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-400/0 to-blue-500/0 group-hover:from-blue-400/5 group-hover:to-blue-500/5 transition-all duration-300" />
               <div className="relative z-10">
                 <p className="text-blue-300 text-xs font-black uppercase tracking-widest mb-3">Carbon Intensity</p>
@@ -177,7 +172,7 @@ export default function PredictionForm() {
                 <p className="text-slate-400 text-sm font-semibold mt-3">gCO₂/kWh</p>
               </div>
             </div>
-            <div className="group bg-gradient-to-br from-emerald-600/20 to-teal-700/10 hover:from-emerald-600/30 hover:to-teal-700/15 border border-emerald-500/40 rounded-2xl p-8 shadow-2xl shadow-emerald-500/15 transition-all duration-300 hover:scale-105 overflow-hidden relative">
+            <div className="group bg-gradient-to-br from-emerald-600/20 to-teal-700/10 hover:from-emerald-600/30 hover:to-teal-700/15 border border-emerald-500/40 rounded-2xl p-8 shadow-lg shadow-emerald-500/15 transition-all duration-300 hover:scale-105 overflow-hidden relative">
               <div className="absolute inset-0 bg-gradient-to-br from-emerald-400/0 to-emerald-500/0 group-hover:from-emerald-400/5 group-hover:to-emerald-500/5 transition-all duration-300" />
               <div className="relative z-10">
                 <p className="text-emerald-300 text-xs font-black uppercase tracking-widest mb-3">Predicted Emissions</p>

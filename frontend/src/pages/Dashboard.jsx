@@ -22,15 +22,15 @@ export default function Dashboard() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-8">
-          <div className="glass border border-emerald-500/20 rounded-xl p-4 text-center">
+          <div className="bg-slate-900/90 border border-emerald-500/20 rounded-xl p-4 text-center shadow-lg shadow-emerald-500/15">
             <p className="text-slate-400 text-xs font-semibold uppercase">Status</p>
-            <p className="text-emerald-400 text-lg font-bold mt-2">🟢 Active</p>
+            <p className="text-emerald-400 text-lg font-bold mt-2">Active</p>
           </div>
-          <div className="glass border border-blue-500/20 rounded-xl p-4 text-center">
+          <div className="bg-slate-900/90 border border-blue-500/20 rounded-xl p-4 text-center shadow-lg shadow-blue-500/15">
             <p className="text-slate-400 text-xs font-semibold uppercase">Model</p>
             <p className="text-blue-400 text-lg font-bold mt-2">✓ Ready</p>
           </div>
-          <div className="glass border border-purple-500/20 rounded-xl p-4 text-center">
+          <div className="bg-slate-900/90 border border-purple-500/20 rounded-xl p-4 text-center shadow-lg shadow-purple-500/15">
             <p className="text-slate-400 text-xs font-semibold uppercase">Version</p>
             <p className="text-purple-400 text-lg font-bold mt-2">v2.0</p>
           </div>

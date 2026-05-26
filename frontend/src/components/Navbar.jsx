@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getUsernameFromToken, logout } from '../services/auth';
+import { BrandLogo } from './BrandIcons';
 
 export default function Navbar({ onMenuClick }) {
   const navigate = useNavigate();
@@ -10,9 +11,22 @@ export default function Navbar({ onMenuClick }) {
   useEffect(() => {
     setUsername(getUsernameFromToken());
 
-    const handleScroll = () => setIsScrolled(window.scrollY > 10);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    let frame = null;
+    const handleScroll = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        setIsScrolled(window.scrollY > 10);
+        frame = null;
+      });
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (frame) {
+        window.cancelAnimationFrame(frame);
+      }
+    };
   }, []);
 
   const handleLogout = () => {
@@ -32,13 +46,14 @@ export default function Navbar({ onMenuClick }) {
         </svg>
       </button>
 
-      <Link to="/" className="flex items-center gap-2.5 mr-auto group">
-        <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-white font-bold text-lg group-hover:scale-110 transition-transform shadow-lg shadow-emerald-500/40">
-          🌿
+      <Link to="/" className="flex items-center gap-3 mr-auto group">
+        <div className="flex items-center justify-center rounded-2xl bg-slate-900/70 p-2 shadow-lg shadow-emerald-500/20 transition-transform group-hover:-translate-y-0.5">
+          <BrandLogo className="w-11 h-11" />
         </div>
-        <span className="font-black text-white text-lg hidden sm:block bg-gradient-to-r from-emerald-400 via-green-300 to-teal-300 bg-clip-text text-transparent hover:from-emerald-300 hover:to-teal-200 transition-all">
-          GHG Platform
-        </span>
+        <div>
+          <p className="font-black text-white text-lg leading-tight">GHG Platform</p>
+          <p className="text-slate-400 text-xs">Carbon analytics dashboard</p>
+        </div>
       </Link>
 
       <div className="hidden md:flex items-center gap-4">

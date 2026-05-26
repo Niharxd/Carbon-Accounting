@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Line, Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -17,6 +17,7 @@ import { Link } from 'react-router-dom';
 import MetricCard from './MetricCard';
 import LoadingSpinner from './LoadingSpinner';
 import EmptyState from './EmptyState';
+import { TotalIcon, AverageIcon, PeakIcon, RegionIcon, ModelIcon, ScoreIcon } from './BrandIcons';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend);
 
@@ -54,6 +55,78 @@ export default function AnalyticsDashboard() {
   const [modelMetrics, setModelMetrics] = useState(null);
   const [metricsError, setMetricsError] = useState(null);
   const [token, setToken] = useState(null);
+
+  const total = useMemo(() => logs.length, [logs]);
+  const avgEmissions = useMemo(
+    () => (total ? (logs.reduce((sum, item) => sum + item.emissions, 0) / total).toFixed(2) : '—'),
+    [logs, total]
+  );
+  const regionCount = useMemo(
+    () =>
+      logs.reduce((acc, item) => {
+        acc[item.region] = (acc[item.region] || 0) + 1;
+        return acc;
+      }, {}),
+    [logs]
+  );
+  const topRegion = useMemo(
+    () => (total ? Object.entries(regionCount).sort((a, b) => b[1] - a[1])[0]?.[0] || '—' : '—'),
+    [regionCount, total]
+  );
+  const maxEmission = useMemo(
+    () => (total ? Math.max(...logs.map((item) => item.emissions)).toFixed(2) : '—'),
+    [logs, total]
+  );
+  const recent = useMemo(() => [...logs].slice(0, 10).reverse(), [logs]);
+
+  const lineData = useMemo(
+    () => ({
+      labels: recent.map((_, index) => `Pred #${index + 1}`),
+      datasets: [
+        {
+          label: 'Emissions (kg CO₂)',
+          data: recent.map((item) => item.emissions),
+          borderColor: '#10b981',
+          backgroundColor: 'rgba(16,185,129,0.1)',
+          tension: 0.3,
+          fill: true,
+          pointBackgroundColor: '#10b981',
+          pointRadius: 5,
+          pointHoverRadius: 7,
+          pointBorderColor: '#059669',
+          pointBorderWidth: 2,
+        },
+      ],
+    }),
+    [recent]
+  );
+
+  const regionData = useMemo(
+    () =>
+      logs.reduce((acc, item) => {
+        if (!acc[item.region]) acc[item.region] = { total: 0, count: 0 };
+        acc[item.region].total += item.emissions;
+        acc[item.region].count += 1;
+        return acc;
+      }, {}),
+    [logs]
+  );
+
+  const barData = useMemo(
+    () => ({
+      labels: Object.keys(regionData),
+      datasets: [
+        {
+          label: 'Avg Emissions (kg CO₂)',
+          data: Object.values(regionData).map((item) => (item.total / item.count).toFixed(2)),
+          backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'],
+          borderRadius: 8,
+          borderSkipped: false,
+        },
+      ],
+    }),
+    [regionData]
+  );
 
   useEffect(() => {
     setToken(getToken());
@@ -104,60 +177,10 @@ export default function AnalyticsDashboard() {
     return () => window.removeEventListener('predictionMade', handler);
   }, [token]);
 
-  const total = logs.length;
-  const avgEmissions = total ? (logs.reduce((sum, item) => sum + item.emissions, 0) / total).toFixed(2) : '—';
-  const regionCount = logs.reduce((acc, item) => {
-    acc[item.region] = (acc[item.region] || 0) + 1;
-    return acc;
-  }, {});
-  const topRegion = total ? Object.entries(regionCount).sort((a, b) => b[1] - a[1])[0]?.[0] || '—' : '—';
-  const maxEmission = total ? Math.max(...logs.map((item) => item.emissions)).toFixed(2) : '—';
-
-  const recent = [...logs].slice(0, 10).reverse();
-  const lineData = {
-    labels: recent.map((_, index) => `Pred #${index + 1}`),
-    datasets: [
-      {
-        label: 'Emissions (kg CO₂)',
-        data: recent.map((item) => item.emissions),
-        borderColor: '#10b981',
-        backgroundColor: 'rgba(16,185,129,0.1)',
-        tension: 0.3,
-        fill: true,
-        pointBackgroundColor: '#10b981',
-        pointRadius: 5,
-        pointHoverRadius: 7,
-        pointBorderColor: '#059669',
-        pointBorderWidth: 2,
-      },
-    ],
-  };
-
-  const regionData = logs.reduce((acc, item) => {
-    if (!acc[item.region]) acc[item.region] = { total: 0, count: 0 };
-    acc[item.region].total += item.emissions;
-    acc[item.region].count += 1;
-    return acc;
-  }, {});
-
-  const barData = {
-    labels: Object.keys(regionData),
-    datasets: [
-      {
-        label: 'Avg Emissions (kg CO₂)',
-        data: Object.values(regionData).map((item) => (item.total / item.count).toFixed(2)),
-        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'],
-        borderRadius: 8,
-        borderSkipped: false,
-      },
-    ],
-  };
-
   if (!token) {
     return (
       <section id="analytics">
         <EmptyState
-          icon="🔒"
           title="Sign in to view your analytics"
           message="Your personal dashboard with charts, history, and detailed insights will appear here after login."
           action={
@@ -173,7 +196,7 @@ export default function AnalyticsDashboard() {
 
   if (loading) {
     return (
-      <section id="analytics" className="glass border border-emerald-500/20 rounded-2xl p-16 flex justify-center">
+      <section id="analytics" className="bg-slate-900/90 border border-emerald-500/20 rounded-2xl p-16 flex justify-center shadow-lg shadow-emerald-500/15">
         <LoadingSpinner size="lg" text="Loading your analytics..." />
       </section>
     );
@@ -191,7 +214,7 @@ export default function AnalyticsDashboard() {
   if (!total) {
     return (
       <section id="analytics">
-        <EmptyState icon="📊" title="No predictions yet" message="Run your first prediction above to see analytics, trends, and detailed insights here." />
+        <EmptyState title="No predictions yet" message="Run your first prediction above to see analytics, trends, and detailed insights here." />
       </section>
     );
   }
@@ -212,7 +235,7 @@ export default function AnalyticsDashboard() {
         </div>
         <button
           onClick={loadLogs}
-          className="group flex items-center gap-2.5 px-6 py-3 text-sm text-slate-300 hover:text-emerald-300 glass border border-emerald-500/30 hover:border-emerald-400/50 rounded-xl transition-all hover:scale-105 font-semibold"
+          className="group flex items-center gap-2.5 px-6 py-3 text-sm text-white bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 shadow-lg shadow-emerald-500/20 rounded-2xl transition-all hover:-translate-y-0.5 font-semibold"
         >
           <svg className="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -221,18 +244,75 @@ export default function AnalyticsDashboard() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <MetricCard title="Total Predictions" value={total} icon="📊" color="blue" />
-        <MetricCard title="Avg Emissions" value={avgEmissions} unit="kg CO₂" icon="🌱" color="green" />
-        <MetricCard title="Peak Emission" value={maxEmission} unit="kg CO₂" icon="⚡" color="orange" />
-        <MetricCard title="Top Region" value={topRegion} icon="🌍" color="purple" />
+      <div className="rounded-3xl border border-emerald-500/20 bg-slate-950/70 p-6 shadow-xl shadow-emerald-500/10">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+          <div>
+            <p className="text-slate-400 uppercase tracking-widest text-[11px] font-semibold">Prediction overview</p>
+            <h3 className="text-2xl font-bold text-white mt-3">Key metrics & model health</h3>
+          </div>
+          <span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-4 py-2 text-xs font-semibold text-emerald-200">
+            <span className="w-2 h-2 rounded-full bg-emerald-300" />
+            Live insights updated
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <MetricCard
+            title="Total Predictions"
+            value={total}
+            icon={<TotalIcon className="text-blue-200" />}
+            color="blue"
+            description="Number of emissions predictions you've made so far."
+          />
+          <MetricCard
+            title="Avg Emissions"
+            value={avgEmissions}
+            unit="kg CO₂"
+            icon={<AverageIcon className="text-emerald-200" />}
+            color="green"
+            description="Average carbon output across your current predictions."
+          />
+          <MetricCard
+            title="Peak Emission"
+            value={maxEmission}
+            unit="kg CO₂"
+            icon={<PeakIcon className="text-orange-200" />}
+            color="orange"
+            description="The highest emission value recorded in the current dataset."
+          />
+          <MetricCard
+            title="Top Region"
+            value={topRegion}
+            icon={<RegionIcon className="text-purple-200" />}
+            color="purple"
+            description="The region that appears most often in your predictions."
+          />
+        </div>
       </div>
 
       {modelMetrics && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-          <MetricCard title="Active Model" value={modelMetrics.model_name || 'Unknown'} icon="🧠" color="purple" />
-          <MetricCard title="Training Score" value={modelMetrics.training_score?.toFixed(3) ?? '—'} icon="📈" color="blue" />
-          <MetricCard title="Testing Score" value={modelMetrics.testing_score?.toFixed(3) ?? '—'} icon="✅" color="green" />
+          <MetricCard
+            title="Active Model"
+            value={modelMetrics.model_name || 'Unknown'}
+            icon={<ModelIcon className="text-purple-200" />}
+            color="purple"
+            description="The currently deployed model powering your predictions."
+          />
+          <MetricCard
+            title="Training Score"
+            value={modelMetrics.training_score?.toFixed(3) ?? '—'}
+            icon={<ScoreIcon className="text-blue-200" />}
+            color="blue"
+            description="How well the model learned from historical data."
+          />
+          <MetricCard
+            title="Testing Score"
+            value={modelMetrics.testing_score?.toFixed(3) ?? '—'}
+            icon={<ScoreIcon className="text-emerald-200" />}
+            color="green"
+            description="Model performance on unseen validation data."
+          />
         </div>
       )}
 
@@ -243,28 +323,24 @@ export default function AnalyticsDashboard() {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="glass border border-emerald-500/30 rounded-3xl p-8 shadow-2xl shadow-emerald-500/15 overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl -mr-40 -mt-40"></div>
+        <div className="bg-slate-900/90 border border-emerald-500/30 rounded-3xl p-8 shadow-lg shadow-emerald-500/15 overflow-hidden relative">
           <div className="flex items-center justify-between mb-8 relative z-10">
             <div>
               <h3 className="text-2xl font-bold text-white">Emission Trend</h3>
               <p className="text-slate-400 text-sm mt-2">Last 10 predictions over time</p>
             </div>
-            <span className="text-3xl">📈</span>
           </div>
           <div className="h-80 relative z-10">
             <Line data={lineData} options={chartOptions} />
           </div>
         </div>
 
-        <div className="glass border border-blue-500/30 rounded-3xl p-8 shadow-2xl shadow-blue-500/15 overflow-hidden relative">
-          <div className="absolute top-0 left-0 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl -ml-40 -mt-40"></div>
+        <div className="bg-slate-900/90 border border-blue-500/30 rounded-3xl p-8 shadow-lg shadow-blue-500/15 overflow-hidden relative">
           <div className="flex items-center justify-between mb-8 relative z-10">
             <div>
               <h3 className="text-2xl font-bold text-white">Emissions by Region</h3>
               <p className="text-slate-400 text-sm mt-2">Average CO₂ per region</p>
             </div>
-            <span className="text-3xl">🌍</span>
           </div>
           <div className="h-80 relative z-10">
             <Bar data={barData} options={chartOptions} />
@@ -272,10 +348,8 @@ export default function AnalyticsDashboard() {
         </div>
       </div>
 
-      <div id="history" className="glass border border-emerald-500/30 rounded-3xl overflow-hidden shadow-2xl shadow-emerald-500/15 relative">
-        <div className="absolute top-0 left-0 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl -ml-40 -mt-40"></div>
+      <div id="history" className="bg-slate-900/90 border border-emerald-500/30 rounded-3xl overflow-hidden shadow-lg shadow-emerald-500/15 relative">
         <div className="px-8 py-6 border-b border-emerald-500/20 relative z-10 flex items-center gap-4">
-          <span className="text-3xl">📋</span>
           <div>
             <h3 className="text-2xl font-bold text-white">Recent Calculations</h3>
             <p className="text-slate-400 text-sm mt-1">Your latest {Math.min(10, logs.length)} predictions</p>

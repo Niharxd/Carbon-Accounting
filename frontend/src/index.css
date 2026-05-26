@@ -25,8 +25,8 @@ textarea {
 }
 
 .glass {
-  background: rgba(15, 23, 42, 0.72);
-  backdrop-filter: blur(25px);
+  background: rgba(15, 23, 42, 0.82);
+  backdrop-filter: blur(12px);
 }
 
 .gradient-primary {

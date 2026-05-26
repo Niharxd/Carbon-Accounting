@@ -33,6 +33,9 @@ npm run dev
 - Anomaly warning banner for unusually high emissions
 - Recommendation cards with actionable carbon reduction guidance
 - Model metrics cards showing active model and score performance
+- Richer dashboard metrics with icons, descriptions, and mini trend visuals
+- Stronger UX hierarchy with grouped overview sections and a prominent CTA
+- Sidebar active-route highlighting for clearer navigation
 - Analytics dashboard with emission trends, region charts, and recent history
 
 ## Project Structure
