@@ -12,7 +12,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white relative overflow-hidden">
-      <Navbar onMenuClick={() => setSidebarOpen(true)} />
+      <Navbar isMenuOpen={sidebarOpen} onMenuClick={() => setSidebarOpen(true)} />
       <div className="flex min-h-screen pt-16">
         <div className="hidden lg:block lg:w-80 flex-shrink-0">
           <div className="fixed left-4 top-20 w-72 h-[calc(100vh-6rem)] overflow-y-auto">

@@ -43,6 +43,14 @@ Use the included batch files:
 - `start-frontend.bat`
 - `start-all.bat`
 
+## GitHub CI
+
+This repository includes a GitHub Actions workflow at `.github/workflows/ci.yml`.
+The CI pipeline validates both backend and frontend builds on `push` and `pull_request` events.
+
+- Backend: installs Python dependencies and checks Python files with `py_compile`
+- Frontend: installs npm dependencies and runs `npm run build`
+
 ---
 
 ## Current Project Structure

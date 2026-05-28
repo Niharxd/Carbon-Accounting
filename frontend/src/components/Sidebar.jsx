@@ -1,4 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { getToken } from '../services/auth';
 import { BrandLogo, DashboardIcon, AnalyticsIcon, LoginIcon, SignupIcon } from './BrandIcons';
 
 const navItems = [
@@ -10,6 +12,18 @@ const navItems = [
 
 export default function Sidebar({ isOpen, onClose }) {
   const location = useLocation();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    setIsAuthenticated(!!getToken());
+  }, []);
+
+  const visibleNavItems = navItems.filter((item) => {
+    if (isAuthenticated) {
+      return item.name !== 'Login' && item.name !== 'Signup';
+    }
+    return true;
+  });
 
   return (
     <>
@@ -20,21 +34,36 @@ export default function Sidebar({ isOpen, onClose }) {
         />
       )}
 
-      <aside className={`fixed top-16 left-0 z-40 h-[calc(100vh-4rem)] w-64 glass border-r border-emerald-500/30 flex flex-col transition-all duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 bg-gradient-to-b from-slate-900/80 via-slate-800/60 to-slate-900/80`}>
-        <div className="px-6 py-6 border-b border-emerald-500/20">
+      <aside
+        className={`fixed top-16 left-0 z-40 h-[calc(100vh-4rem)] w-64 glass border-r border-emerald-500/30 flex flex-col transition-all duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 bg-gradient-to-b from-slate-900/80 via-slate-800/60 to-slate-900/80`}
+        role="navigation"
+        aria-label="Primary site navigation"
+        aria-hidden={!isOpen}
+      >
+        <div className="px-6 py-5 flex items-center justify-between border-b border-emerald-500/20">
           <div className="flex items-center gap-3">
             <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-slate-900/80 shadow-lg shadow-emerald-500/15">
               <BrandLogo className="w-9 h-9" />
             </div>
             <div>
               <p className="text-white font-bold text-sm">Quick Nav</p>
-              <p className="text-slate-500 text-xs">Navigate your dataset</p>
+              <p className="text-slate-500 text-xs">Navigate the app quickly</p>
             </div>
           </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close navigation panel"
+            className="lg:hidden p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/70 transition"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
 
         <nav className="flex-1 px-3 py-6 space-y-2 overflow-y-auto">
-          {navItems.map((item, idx) => {
+          {visibleNavItems.map((item, idx) => {
             const isActive = location.pathname === item.to;
             return (
               <NavLink

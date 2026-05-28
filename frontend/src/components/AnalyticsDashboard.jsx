@@ -226,7 +226,7 @@ export default function AnalyticsDashboard() {
           <div className="flex items-center gap-4 mb-4">
             <div className="w-2 h-10 bg-gradient-to-b from-blue-400 to-blue-600 rounded-full shadow-lg shadow-blue-500/50"></div>
             <div>
-              <span className="text-xs font-bold text-blue-400 tracking-widest uppercase">Data Intelligence</span>
+              <span className="text-xs font-bold text-blue-400 tracking-widest uppercase">Analytics Dashboard</span>
               <p className="text-slate-400 text-xs mt-1">Detailed insights & trends</p>
             </div>
           </div>
@@ -234,7 +234,10 @@ export default function AnalyticsDashboard() {
           <p className="text-slate-400 text-lg mt-3">Based on your {total} prediction{total !== 1 ? 's' : ''}</p>
         </div>
         <button
-          onClick={loadLogs}
+          onClick={() => {
+            loadLogs();
+            loadModelMetrics();
+          }}
           className="group flex items-center gap-2.5 px-6 py-3 text-sm text-white bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 shadow-lg shadow-emerald-500/20 rounded-2xl transition-all hover:-translate-y-0.5 font-semibold"
         >
           <svg className="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

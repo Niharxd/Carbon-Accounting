@@ -11,21 +11,52 @@ const regions = [
   { value: 'SE', label: 'Sweden', intensity: 100 },
 ];
 
+const fieldHelp = {
+  cpu: 'Number of CPU cores used for this workload. Use whole numbers for the best estimate.',
+  ram: 'RAM capacity in gigabytes. Higher RAM typically increases power draw.',
+  storage: 'Total storage in gigabytes for your dataset or service.',
+};
+
 export default function PredictionForm() {
   const [form, setForm] = useState({ cpu: '', ram: '', storage: '', region: 'IN' });
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [successMessage, setSuccessMessage] = useState('');
 
   const handleChange = (event) => {
     const { name, value } = event.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+    setFieldErrors((prev) => ({ ...prev, [name]: '' }));
+    setSuccessMessage('');
+  };
+
+  const validateForm = () => {
+    const errors = {};
+    ['cpu', 'ram', 'storage'].forEach((field) => {
+      const value = parseFloat(form[field]);
+      if (!form[field]) {
+        errors[field] = 'This field is required.';
+      } else if (Number.isNaN(value) || value <= 0) {
+        errors[field] = 'Enter a positive number.';
+      }
+    });
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setLoading(true);
     setError(null);
+    setSuccessMessage('');
+
+    if (!validateForm()) {
+      setError('Please fix the highlighted fields before submitting.');
+      return;
+    }
+
+    setLoading(true);
     setResult(null);
 
     try {
@@ -36,6 +67,7 @@ export default function PredictionForm() {
         region: form.region,
       });
       setResult(response);
+      setSuccessMessage('Prediction completed successfully. Review the details below for actionable insights.');
       window.dispatchEvent(new Event('predictionMade'));
     } catch (err) {
       setError(err.message || 'Could not reach backend. Make sure the server is running.');
@@ -68,11 +100,12 @@ export default function PredictionForm() {
               { name: 'storage', label: 'Storage (GB)', placeholder: 'e.g. 500' },
             ].map((field) => (
               <div key={field.name} className="group space-y-2.5">
-                <label className="text-sm font-bold text-slate-100 group-hover:text-emerald-300 transition-colors">
+                <label htmlFor={field.name} className="text-sm font-bold text-slate-100 group-hover:text-emerald-300 transition-colors">
                   {field.label}
                 </label>
                 <div className="relative">
                   <input
+                    id={field.name}
                     type="number"
                     name={field.name}
                     value={form[field.name]}
@@ -80,9 +113,14 @@ export default function PredictionForm() {
                     required
                     step="0.1"
                     placeholder={field.placeholder}
-                    className="w-full bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 text-white rounded-xl px-5 py-3.5 text-sm placeholder-slate-600 focus:outline-none focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-400/30 transition-all duration-200"
+                    aria-describedby={`${field.name}-help ${field.name}-error`}
+                    className={`w-full bg-gradient-to-br from-slate-800/50 to-slate-900/50 border text-white rounded-xl px-5 py-3.5 text-sm placeholder-slate-600 focus:outline-none focus:ring-2 transition-all duration-200 ${fieldErrors[field.name] ? 'border-red-400/70 focus:border-red-400 focus:ring-red-400/30' : 'border-slate-700/50 focus:border-emerald-500/60 focus:ring-emerald-400/30'}`}
                   />
                 </div>
+                <p id={`${field.name}-help`} className="text-xs text-slate-500">{fieldHelp[field.name]}</p>
+                {fieldErrors[field.name] && (
+                  <p id={`${field.name}-error`} className="text-xs text-red-300">{fieldErrors[field.name]}</p>
+                )}
               </div>
             ))}
 
@@ -113,6 +151,15 @@ export default function PredictionForm() {
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
               </svg>
               <span className="font-medium">{error}</span>
+            </div>
+          )}
+
+          {successMessage && (
+            <div className="flex items-start gap-3 text-sm text-emerald-200 bg-gradient-to-r from-emerald-400/10 to-emerald-500/10 border border-emerald-500/30 rounded-xl px-5 py-4 animate-fadeInUp">
+              <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1.25-4.5l-3.5-3.5 1.06-1.06 2.44 2.44 5.44-5.44 1.06 1.06-6.5 6.5z" clipRule="evenodd" />
+              </svg>
+              <span className="font-medium">{successMessage}</span>
             </div>
           )}
 

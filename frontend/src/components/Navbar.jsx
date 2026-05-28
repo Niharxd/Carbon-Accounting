@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { getUsernameFromToken, logout } from '../services/auth';
 import { BrandLogo } from './BrandIcons';
 
-export default function Navbar({ onMenuClick }) {
+export default function Navbar({ onMenuClick, isMenuOpen = false }) {
   const navigate = useNavigate();
   const [username, setUsername] = useState(null);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -38,7 +38,10 @@ export default function Navbar({ onMenuClick }) {
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 h-16 transition-all duration-300 flex items-center px-4 gap-4 ${isScrolled ? 'glass shadow-2xl shadow-emerald-500/10 border-b border-emerald-500/30' : 'border-b border-emerald-500/20'}`}>
       <button
+        type="button"
         onClick={onMenuClick}
+        aria-label="Open navigation menu"
+        aria-expanded={isMenuOpen}
         className="lg:hidden p-2 rounded-lg text-slate-400 hover:text-emerald-300 hover:bg-emerald-500/20 transition-all hover:scale-110"
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -73,7 +76,9 @@ export default function Navbar({ onMenuClick }) {
               <span className="text-slate-300 text-xs hidden sm:block font-semibold">{username}</span>
             </div>
             <button
+              type="button"
               onClick={handleLogout}
+              aria-label="Log out of your account"
               className="px-3 py-1.5 text-xs text-slate-300 hover:text-emerald-300 border border-slate-700/50 hover:border-emerald-500/50 hover:bg-emerald-500/10 rounded-lg transition-all font-semibold"
             >
               Logout
