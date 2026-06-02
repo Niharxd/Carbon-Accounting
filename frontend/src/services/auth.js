@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -15,17 +15,51 @@ export async function signupUser({ username, email, password }) {
 }
 
 export async function loginUser({ email, password }) {
-  const response = await api.post('/login', { email, password });
-  const data = response.data;
-  if (!data?.access_token) {
-    throw new Error(data?.detail || 'Login failed');
+  try {
+    const response = await api.post('/login', { email, password });
+    const data = response.data;
+    if (!data?.access_token) {
+      throw new Error(data?.detail || 'Login failed');
+    }
+    window.localStorage.setItem('token', data.access_token);
+    // notify other parts of the app that auth state changed
+    try {
+      window.dispatchEvent(new Event('authChanged'));
+    } catch (e) {
+      // ignore
+    }
+    return data;
+  } catch (error) {
+    console.error('Login request failed', {
+      apiBaseUrl: API_BASE_URL,
+      error,
+      response: axios.isAxiosError(error) ? error.response?.data : null,
+    });
+
+    if (axios.isAxiosError(error)) {
+      if (error.response) {
+        const responseData = error.response.data;
+        const message =
+          responseData?.detail ||
+          responseData?.message ||
+          (typeof responseData === 'string' ? responseData : null) ||
+          error.response.statusText ||
+          `Login failed (${error.response.status})`;
+        throw new Error(message);
+      }
+      if (error.request) {
+        throw new Error('Network request failed. Check that the frontend dev server is running and that the API proxy is active.');
+      }
+    }
+    throw error;
   }
-  window.localStorage.setItem('token', data.access_token);
-  return data;
 }
 
 export function logout() {
   window.localStorage.removeItem('token');
+  try {
+    window.dispatchEvent(new Event('authChanged'));
+  } catch (e) {}
 }
 
 export function getToken() {
@@ -43,3 +77,5 @@ export function getUsernameFromToken() {
     return null;
   }
 }
+
+
