@@ -17,6 +17,10 @@ A portfolio-ready emissions prediction platform with advanced ML analytics, anom
 - Add richer dashboard metric cards with icons, trend visuals, grouped overview sections, and stronger CTA styling
 - Improve sidebar active state highlighting and navigation feedback
 
+- Harden `/login` error handling to avoid internal server errors when stored password hashes are invalid or malformed.
+- Emit `authChanged` event after `loginUser()` stores the token and after `logout()` so other UI components can react immediately.
+- Update `Navbar` to listen for `authChanged` and `storage` events and update the displayed username/avatar without requiring a page refresh.
+
 ## Quick Start
 
 ### Backend
