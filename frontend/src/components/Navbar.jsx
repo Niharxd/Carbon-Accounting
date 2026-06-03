@@ -11,6 +11,18 @@ export default function Navbar({ onMenuClick, isMenuOpen = false }) {
   useEffect(() => {
     setUsername(getUsernameFromToken());
 
+    // update username when authentication changes (login/logout)
+    const onAuthChanged = () => setUsername(getUsernameFromToken());
+    window.addEventListener('authChanged', onAuthChanged);
+
+    // also listen to storage events (other tabs)
+    const onStorage = (e) => {
+      if (e.key === 'token') {
+        setUsername(getUsernameFromToken());
+      }
+    };
+    window.addEventListener('storage', onStorage);
+
     let frame = null;
     const handleScroll = () => {
       if (frame) return;
@@ -23,6 +35,8 @@ export default function Navbar({ onMenuClick, isMenuOpen = false }) {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => {
       window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('authChanged', onAuthChanged);
+      window.removeEventListener('storage', onStorage);
       if (frame) {
         window.cancelAnimationFrame(frame);
       }
@@ -98,3 +112,4 @@ export default function Navbar({ onMenuClick, isMenuOpen = false }) {
     </nav>
   );
 }
+

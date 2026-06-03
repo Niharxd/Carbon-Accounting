@@ -12,7 +12,7 @@ import {
   Legend,
 } from 'chart.js';
 import { fetchLogs, fetchModelMetrics } from '../services/api';
-import { getToken } from '../services/auth';
+import { getToken, logout } from '../services/auth';
 import { Link } from 'react-router-dom';
 import MetricCard from './MetricCard';
 import LoadingSpinner from './LoadingSpinner';
@@ -133,7 +133,8 @@ export default function AnalyticsDashboard() {
   }, []);
 
   const loadLogs = async () => {
-    if (!getToken()) {
+    const currentToken = getToken();
+    if (!currentToken) {
       setLoading(false);
       return;
     }
@@ -144,7 +145,14 @@ export default function AnalyticsDashboard() {
       setLogs(res.logs || []);
       setError(null);
     } catch (err) {
-      setError(err.message || 'Failed to load data. Is the backend running?');
+      const message = err.message || 'Failed to load data. Is the backend running?';
+      if (message.includes('Authentication expired') || message.includes('Not authenticated')) {
+        logout();
+        setToken(null);
+        setError('Session expired. Please sign in again.');
+      } else {
+        setError(message);
+      }
     } finally {
       setLoading(false);
     }

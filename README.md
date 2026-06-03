@@ -17,6 +17,10 @@ A portfolio-ready emissions prediction platform with advanced ML analytics, anom
 - Add richer dashboard metric cards with icons, trend visuals, grouped overview sections, and stronger CTA styling
 - Improve sidebar active state highlighting and navigation feedback
 
+- Harden `/login` error handling to avoid internal server errors when stored password hashes are invalid or malformed.
+- Emit `authChanged` event after `loginUser()` stores the token and after `logout()` so other UI components can react immediately.
+- Update `Navbar` to listen for `authChanged` and `storage` events and update the displayed username/avatar without requiring a page refresh.
+
 ## Quick Start
 
 ### Backend
@@ -146,6 +150,37 @@ Features:
 - Sidebar active-route highlighting for better navigation feedback
 - Protected routes for authenticated actions
 - Responsive layout for desktop and mobile
+
+## Screenshots
+
+- Dashboard (KPI-first, prediction panel, AI insights): frontend/public/screenshots/dashboard.png
+- Prediction results panel (premium card): frontend/public/screenshots/prediction_results.png
+- Simulator comparison (side-by-side): frontend/public/screenshots/simulator.png
+
+*(Add screenshots by running the app and saving images to the paths above.)*
+
+### Frontend Dashboard
+
+The redesigned dashboard focuses on KPI-first analytics and a premium results experience:
+
+- Hero: compact headline and short description (reduced height to prioritize analytics).
+- KPI Row: four high-level metrics immediately below the hero (`Sustainability Score`, `Total Predictions`, `Average Emissions`, `Carbon Reduction Potential`).
+- Main Layout: two-column split where the left column contains the `PredictionForm` and the right column contains a premium `PredictionResults` panel.
+- PredictionResults: focal premium card showing Predicted Emissions, Efficiency & Sustainability scores, Anomaly status, Top recommendation, and AI Insights.
+- AI Insights: short, prioritized insight cards produced by the backend model and shown beneath the results panel.
+- Carbon Reduction Simulator: side-by-side comparison showing current vs optimized emissions and potential savings.
+- Sidebar: compact width with clear navigation (Dashboard, Analytics, Simulator, History, Reports, Settings).
+- Footer: compact author footer with links to GitHub and LinkedIn.
+
+### UI/UX Improvements
+
+- KPI-first layout to surface important metrics immediately.
+- Premium results panel with stronger visual hierarchy (badges, glass cards, subtle gradients).
+- Circular `SustainabilityScore` widget with color-coded status (Excellent / Good / Moderate / Poor).
+- Glassmorphism card surfaces, subtle gradients, and gentle hover states.
+- Loading skeletons and graceful empty states for improved perceived performance.
+- Responsive behavior across desktop, tablet, and mobile breakpoints.
+- Accessibility: clear focus states and semantic markup for navigation and forms.
 
 ---
 
