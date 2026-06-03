@@ -70,18 +70,26 @@ export default function PredictionForm() {
       });
       setResult(response);
       setSuccessMessage('Prediction completed successfully. Review the details below for actionable insights.');
-      window.dispatchEvent(new Event('predictionMade'));
 
+      let simResult = null;
       try {
-        const sim = await simulateEmissions({
+        simResult = await simulateEmissions({
           cpu: parseFloat(form.cpu),
           ram: parseFloat(form.ram),
           storage: parseFloat(form.storage),
           region: form.region,
         });
-        setSimulation(sim);
+        setSimulation(simResult);
       } catch (simErr) {
         console.warn('Simulation failed', simErr);
+      }
+
+      // Emit a detailed prediction event so sibling components can render the premium panel
+      try {
+        window.dispatchEvent(new CustomEvent('predictionMade', { detail: { result: response, simulation: simResult } }));
+      } catch (e) {
+        // fallback for environments that don't support CustomEvent constructor
+        window.dispatchEvent(new Event('predictionMade'));
       }
     } catch (err) {
       setError(err.message || 'Could not reach backend. Make sure the server is running.');
@@ -163,26 +171,6 @@ export default function PredictionForm() {
                 )}
               </div>
             ))}
-
-            <div className="group space-y-2.5">
-              <label className="text-sm font-bold text-slate-100 group-hover:text-emerald-300 transition-colors">
-                Region
-              </label>
-              <div className="relative">
-                <select
-                  name="region"
-                  value={form.region}
-                  onChange={handleChange}
-                  className="w-full appearance-none bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 text-white rounded-xl px-5 py-3.5 text-sm focus:outline-none focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-400/30 transition-all duration-200 cursor-pointer font-medium"
-                >
-                  {regions.map((region) => (
-                    <option key={region.value} value={region.value}>
-                      {region.label} — {region.intensity} gCO₂/kWh
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
           </div>
 
           {error && (
@@ -224,130 +212,6 @@ export default function PredictionForm() {
           </button>
         </form>
       </div>
-
-      {result && (
-        <div className="bg-slate-900/90 border border-emerald-500/40 rounded-3xl p-10 space-y-8 animate-fadeInUp shadow-lg shadow-emerald-500/15 overflow-hidden relative">
-          <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <h3 className="text-4xl font-black bg-gradient-to-r from-emerald-300 to-teal-300 bg-clip-text text-transparent mb-2">Prediction & Optimization</h3>
-              <p className="text-slate-400 text-lg">Results, sustainability score, and targeted recommendations.</p>
-            </div>
-            <button
-              onClick={handleDownloadReport}
-              disabled={reportLoading}
-              className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-blue-500 to-cyan-500 px-5 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-blue-500/20 transition hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {reportLoading ? 'Generating Report...' : 'Download Report'}
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 xl:grid-cols-[1.2fr_0.8fr] gap-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div className="rounded-3xl border border-slate-700/60 bg-slate-950/80 p-6 shadow-lg shadow-slate-950/20">
-                <p className="text-slate-400 uppercase tracking-widest text-[11px] font-semibold mb-4">Predicted Emissions</p>
-                <p className="text-5xl font-black text-emerald-400">{result.predicted_emissions.toFixed(2)}</p>
-                <p className="text-slate-400 mt-2 text-sm">kg CO₂ — estimated carbon footprint for your configuration.</p>
-              </div>
-              <div className="rounded-3xl border border-slate-700/60 bg-slate-950/80 p-6 shadow-lg shadow-slate-950/20">
-                <p className="text-slate-400 uppercase tracking-widest text-[11px] font-semibold mb-4">Carbon Intensity</p>
-                <p className="text-5xl font-black text-blue-400">{result.carbon_intensity}</p>
-                <p className="text-slate-400 mt-2 text-sm">gCO₂/kWh — use this value to compare regions.</p>
-              </div>
-            </div>
-
-            <div className="rounded-3xl border border-slate-700/60 bg-slate-950/80 p-6 shadow-lg shadow-slate-950/20 flex flex-col items-center justify-center gap-4">
-              <div className="relative flex h-36 w-36 items-center justify-center rounded-full bg-slate-900/70 shadow-inner shadow-slate-950/30">
-                <div
-                  className="absolute inset-0 rounded-full"
-                  style={{
-                    background: `conic-gradient(${result.sustainability_score >= 70 ? '#34d399' : result.sustainability_score >= 50 ? '#fbbf24' : '#f87171'} ${result.sustainability_score * 3.6}deg, rgba(255,255,255,0.08) 0deg)`,
-                  }}
-                />
-                <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-slate-950/90 text-center">
-                  <div>
-                    <p className="text-4xl font-black text-white">{result.sustainability_score}</p>
-                    <p className="text-xs text-slate-400 uppercase tracking-[0.3em]">Score</p>
-                  </div>
-                </div>
-              </div>
-              <div className="text-center">
-                <p className="text-slate-200 font-bold text-lg">{result.sustainability_rating}</p>
-                <p className="text-slate-400 text-sm">Sustainability score based on emissions, efficiency, and anomaly risk.</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <div className="rounded-3xl border border-slate-700/60 bg-slate-950/80 p-6 shadow-lg shadow-slate-950/20">
-              <p className="text-slate-400 uppercase tracking-widest text-[11px] font-semibold mb-4">Efficiency Score</p>
-              <p className="text-4xl font-black text-emerald-300">{result.efficiency_score}</p>
-              <p className="text-slate-400 mt-3 text-sm">Higher values mean the model sees your setup as more efficient.</p>
-            </div>
-            <div className="rounded-3xl border border-slate-700/60 bg-slate-950/80 p-6 shadow-lg shadow-slate-950/20">
-              <p className="text-slate-400 uppercase tracking-widest text-[11px] font-semibold mb-4">Model Used</p>
-              <p className="text-3xl font-black text-blue-300">{result.model_used}</p>
-              <p className="text-slate-400 mt-3 text-sm">This is the algorithm powering the prediction.</p>
-            </div>
-            <div className={`rounded-3xl p-6 shadow-lg transition-all duration-300 ${result.anomaly_detected ? 'border border-red-500/40 bg-red-500/10 shadow-red-500/20' : 'border border-emerald-500/40 bg-emerald-500/10 shadow-emerald-500/20'}`}>
-              <p className="text-slate-400 uppercase tracking-widest text-[11px] font-semibold mb-4">Anomaly Status</p>
-              <p className={`text-4xl font-black ${result.anomaly_detected ? 'text-red-200' : 'text-emerald-200'}`}>{result.anomaly_detected ? 'Alert' : 'Normal'}</p>
-              <p className="text-slate-400 mt-3 text-sm">{result.anomaly_detected ? 'Potential emissions spike detected.' : 'Predictive output is within normal thresholds.'}</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 xl:grid-cols-[1.2fr_0.8fr] gap-6">
-            <div className="rounded-3xl border border-slate-700/60 bg-slate-950/80 p-6 shadow-lg shadow-slate-950/20">
-              <p className="text-slate-400 uppercase tracking-widest text-[11px] font-semibold mb-4">AI Insights</p>
-              <div className="space-y-3">
-                {result.insights?.map((insight, index) => (
-                  <div key={index} className="rounded-2xl border border-slate-700/40 bg-slate-900/80 p-4 text-slate-300">
-                    <p className="text-sm">{insight}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="rounded-3xl border border-slate-700/60 bg-slate-950/80 p-6 shadow-lg shadow-slate-950/20">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <p className="text-slate-400 uppercase tracking-[0.3em] text-[11px] font-semibold">Carbon Reduction Simulator</p>
-                  <h4 className="text-white text-xl font-black">Optimization Preview</h4>
-                </div>
-                <span className="rounded-full bg-slate-800/90 px-3 py-1 text-xs uppercase tracking-[0.2em] text-slate-300">Simulated</span>
-              </div>
-              {simulation ? (
-                <div className="space-y-4">
-                  <div className="rounded-2xl bg-slate-900/90 p-4 border border-slate-700/50">
-                    <p className="text-slate-400 text-xs uppercase tracking-[0.3em] mb-2">Current Emissions</p>
-                    <p className="text-3xl font-black text-emerald-300">{simulation.current_emissions.toFixed(2)} kg CO₂</p>
-                  </div>
-                  <div className="rounded-2xl bg-slate-900/90 p-4 border border-slate-700/50">
-                    <p className="text-slate-400 text-xs uppercase tracking-[0.3em] mb-2">Optimized Emissions</p>
-                    <p className="text-3xl font-black text-blue-300">{simulation.optimized_emissions.toFixed(2)} kg CO₂</p>
-                  </div>
-                  <div className="rounded-2xl bg-slate-900/90 p-4 border border-slate-700/50">
-                    <p className="text-slate-400 text-xs uppercase tracking-[0.3em] mb-2">Potential Reduction</p>
-                    <p className="text-3xl font-black text-emerald-300">{simulation.reduction_pct.toFixed(1)}%</p>
-                    <p className="text-slate-400 text-sm mt-2">Carbon saved: {simulation.carbon_saved.toFixed(2)} kg CO₂</p>
-                  </div>
-                </div>
-              ) : (
-                <p className="text-slate-400">Simulation values will appear after prediction.</p>
-              )}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {result.recommendations?.map((recommendation, index) => (
-              <div key={index} className="group rounded-3xl border border-slate-700/40 bg-slate-900/80 p-6 shadow-lg shadow-slate-950/20 transition-all duration-300 hover:scale-[1.01]">
-                <p className="text-slate-400 uppercase tracking-widest text-[11px] font-semibold mb-3">{recommendation.title}</p>
-                <p className="text-slate-100 text-sm leading-6 mb-4">{recommendation.description}</p>
-                <span className="inline-flex rounded-full bg-slate-800/70 px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-slate-300">Impact: {recommendation.impact}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </section>
   );
 }

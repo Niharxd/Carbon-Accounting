@@ -1,13 +1,25 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { getToken } from '../services/auth';
-import { BrandLogo, DashboardIcon, AnalyticsIcon, LoginIcon, SignupIcon } from './BrandIcons';
+import {
+  BrandLogo,
+  DashboardIcon,
+  AnalyticsIcon,
+  LoginIcon,
+  SignupIcon,
+  QuickNavIcon,
+  RegionIcon,
+  ModelIcon,
+} from './BrandIcons';
 
 const navItems = [
   { name: 'Dashboard', to: '/', icon: <DashboardIcon className="text-emerald-400" />, color: 'from-emerald-400 to-teal-600', bgColor: 'bg-emerald-500/20' },
   { name: 'Analytics', to: '/analytics', icon: <AnalyticsIcon className="text-slate-300" />, color: 'from-slate-500 to-slate-700', bgColor: 'bg-slate-700/20' },
+  { name: 'Simulator', to: '/simulator', icon: <QuickNavIcon className="text-emerald-300" />, color: 'from-emerald-400 to-teal-600', bgColor: 'bg-emerald-500/20' },
+  { name: 'History', to: '/history', icon: <RegionIcon className="text-slate-300" />, color: 'from-slate-500 to-slate-700', bgColor: 'bg-slate-700/20' },
+  { name: 'Reports', to: '/reports', icon: <ModelIcon className="text-slate-300" />, color: 'from-blue-500 to-cyan-600', bgColor: 'bg-blue-500/10' },
+  { name: 'Settings', to: '/settings', icon: <SignupIcon className="text-teal-300" />, color: 'from-teal-400 to-emerald-600', bgColor: 'bg-teal-500/20' },
   { name: 'Login', to: '/login', icon: <LoginIcon className="text-emerald-400" />, color: 'from-emerald-400 to-emerald-600', bgColor: 'bg-emerald-500/20' },
-  { name: 'Signup', to: '/signup', icon: <SignupIcon className="text-teal-300" />, color: 'from-teal-400 to-emerald-600', bgColor: 'bg-teal-500/20' },
 ];
 
 export default function Sidebar({ isOpen, onClose }) {

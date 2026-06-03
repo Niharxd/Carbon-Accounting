@@ -6,6 +6,10 @@ import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Analytics from './pages/Analytics';
+import Simulator from './pages/Simulator';
+import History from './pages/History';
+import Reports from './pages/Reports';
+import Settings from './pages/Settings';
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -29,6 +33,10 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/analytics" element={<Analytics />} />
+              <Route path="/simulator" element={<Simulator />} />
+              <Route path="/history" element={<History />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="/settings" element={<Settings />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </div>
