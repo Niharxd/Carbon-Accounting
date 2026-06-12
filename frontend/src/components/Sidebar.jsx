@@ -50,7 +50,7 @@ export default function Sidebar({ isOpen, onClose }) {
         className={`fixed top-16 left-0 z-40 h-[calc(100vh-4rem)] w-64 glass border-r border-emerald-500/30 flex flex-col transition-all duration-300 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 bg-gradient-to-b from-slate-900/80 via-slate-800/60 to-slate-900/80`}
         role="navigation"
         aria-label="Primary site navigation"
-        aria-hidden={!isOpen}
+        aria-hidden={false}
       >
         <div className="px-6 py-5 flex items-center justify-between border-b border-emerald-500/20">
           <div className="flex items-center gap-3">

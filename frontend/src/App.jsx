@@ -17,17 +17,15 @@ function App() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white relative overflow-hidden">
       <Navbar isMenuOpen={sidebarOpen} onMenuClick={() => setSidebarOpen(true)} />
+
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
       <div className="flex min-h-screen pt-16">
-        <div className="hidden lg:block lg:w-80 flex-shrink-0">
-          <div className="fixed left-4 top-20 w-72 h-[calc(100vh-6rem)] overflow-y-auto">
-            <Sidebar isOpen={true} onClose={() => {}} />
-          </div>
-        </div>
+        {/* Spacer for fixed sidebar on desktop */}
+        <div className="hidden lg:block lg:w-72 flex-shrink-0" />
 
-        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
-        <main className="flex-1 relative z-10">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12 space-y-16 lg:mr-12">
+        <main className="flex-1 relative z-10 min-w-0">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12 space-y-16">
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/login" element={<Login />} />

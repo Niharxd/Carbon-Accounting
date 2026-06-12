@@ -12,23 +12,22 @@ const regions = [
 ];
 
 const fieldHelp = {
-  cpu: 'Number of CPU cores used for this workload. Use whole numbers for the best estimate.',
-  ram: 'RAM capacity in gigabytes. Higher RAM typically increases power draw.',
-  storage: 'Total storage in gigabytes for your dataset or service.',
+  cpu: 'Number of CPU cores for this workload.',
+  ram: 'RAM in GB — higher RAM increases power draw.',
+  storage: 'Total storage in GB for your dataset or service.',
 };
 
 export default function PredictionForm() {
   const [form, setForm] = useState({ cpu: '', ram: '', storage: '', region: 'IN' });
-  const [result, setResult] = useState(null);
-  const [simulation, setSimulation] = useState(null);
   const [loading, setLoading] = useState(false);
   const [reportLoading, setReportLoading] = useState(false);
   const [error, setError] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
+  const [lastResult, setLastResult] = useState(null);
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
+  const handleChange = (e) => {
+    const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
     setFieldErrors((prev) => ({ ...prev, [name]: '' }));
     setSuccessMessage('');
@@ -38,57 +37,42 @@ export default function PredictionForm() {
     const errors = {};
     ['cpu', 'ram', 'storage'].forEach((field) => {
       const value = parseFloat(form[field]);
-      if (!form[field]) {
-        errors[field] = 'This field is required.';
-      } else if (Number.isNaN(value) || value <= 0) {
-        errors[field] = 'Enter a positive number.';
-      }
+      if (!form[field]) errors[field] = 'Required.';
+      else if (Number.isNaN(value) || value <= 0) errors[field] = 'Enter a positive number.';
     });
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     setError(null);
     setSuccessMessage('');
-
-    if (!validateForm()) {
-      setError('Please fix the highlighted fields before submitting.');
-      return;
-    }
+    if (!validateForm()) return;
 
     setLoading(true);
-    setResult(null);
-
     try {
-      const response = await predictEmissions({
+      const payload = {
         cpu: parseFloat(form.cpu),
         ram: parseFloat(form.ram),
         storage: parseFloat(form.storage),
         region: form.region,
-      });
-      setResult(response);
-      setSuccessMessage('Prediction completed successfully. Review the details below for actionable insights.');
+      };
+      const response = await predictEmissions(payload);
+      setLastResult(response);
+      try { localStorage.setItem('lastPrediction', JSON.stringify(response)); } catch {}
+      setSuccessMessage('Prediction complete — review the results panel.');
 
       let simResult = null;
       try {
-        simResult = await simulateEmissions({
-          cpu: parseFloat(form.cpu),
-          ram: parseFloat(form.ram),
-          storage: parseFloat(form.storage),
-          region: form.region,
-        });
-        setSimulation(simResult);
+        simResult = await simulateEmissions(payload);
       } catch (simErr) {
         console.warn('Simulation failed', simErr);
       }
 
-      // Emit a detailed prediction event so sibling components can render the premium panel
       try {
         window.dispatchEvent(new CustomEvent('predictionMade', { detail: { result: response, simulation: simResult } }));
-      } catch (e) {
-        // fallback for environments that don't support CustomEvent constructor
+      } catch {
         window.dispatchEvent(new Event('predictionMade'));
       }
     } catch (err) {
@@ -99,15 +83,14 @@ export default function PredictionForm() {
   };
 
   const handleDownloadReport = async () => {
-    if (!result) return;
-
+    if (!lastResult) return;
     setReportLoading(true);
     setError(null);
     try {
       const blob = await generateReport({
-        summary: result,
-        recommendations: result.recommendations || [],
-        forecast: simulation ? { forecast_7: [], forecast_30: [] } : {},
+        summary: lastResult,
+        recommendations: lastResult.recommendations || [],
+        forecast: {},
       });
       const url = window.URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
       const link = document.createElement('a');
@@ -128,88 +111,139 @@ export default function PredictionForm() {
     <section id="predictions" className="space-y-8 animate-fadeInUp">
       <div>
         <div className="flex items-center gap-4 mb-4">
-          <div className="w-2 h-10 bg-gradient-to-b from-emerald-400 to-emerald-600 rounded-full shadow-lg shadow-emerald-500/50"></div>
+          <div className="w-2 h-10 bg-gradient-to-b from-emerald-400 to-emerald-600 rounded-full shadow-lg shadow-emerald-500/50" />
           <div>
             <span className="text-xs font-bold text-emerald-400 tracking-widest uppercase">Predictive Analytics</span>
             <p className="text-slate-400 text-xs mt-1">Real-time CO₂ estimation</p>
           </div>
         </div>
-        <h2 className="text-4xl font-black bg-gradient-to-r from-emerald-300 via-green-300 to-teal-300 bg-clip-text text-transparent">Run Prediction</h2>
+        <h2 className="text-4xl font-black bg-gradient-to-r from-emerald-300 via-green-300 to-teal-300 bg-clip-text text-transparent">
+          Run Prediction
+        </h2>
         <p className="text-slate-400 text-lg mt-3">Enter your infrastructure specs for instant carbon footprint estimation</p>
       </div>
 
-      <div className="bg-slate-900/90 border border-emerald-500/30 rounded-3xl p-10 shadow-lg shadow-emerald-500/15 overflow-hidden relative">
-
-        <form onSubmit={handleSubmit} className="space-y-8 relative z-10">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <div className="bg-slate-900/90 border border-emerald-500/30 rounded-2xl p-8 shadow-lg shadow-emerald-500/10">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             {[
               { name: 'cpu', label: 'CPU Cores', placeholder: 'e.g. 8' },
               { name: 'ram', label: 'RAM (GB)', placeholder: 'e.g. 16' },
               { name: 'storage', label: 'Storage (GB)', placeholder: 'e.g. 500' },
             ].map((field) => (
-              <div key={field.name} className="group space-y-2.5">
-                <label htmlFor={field.name} className="text-sm font-bold text-slate-100 group-hover:text-emerald-300 transition-colors">
+              <div key={field.name} className="space-y-2">
+                <label htmlFor={field.name} className="block text-sm font-semibold text-slate-200">
                   {field.label}
                 </label>
-                <div className="relative">
-                  <input
-                    id={field.name}
-                    type="number"
-                    name={field.name}
-                    value={form[field.name]}
-                    onChange={handleChange}
-                    required
-                    step="0.1"
-                    placeholder={field.placeholder}
-                    aria-describedby={`${field.name}-help ${field.name}-error`}
-                    className={`w-full bg-gradient-to-br from-slate-800/50 to-slate-900/50 border text-white rounded-xl px-5 py-3.5 text-sm placeholder-slate-600 focus:outline-none focus:ring-2 transition-all duration-200 ${fieldErrors[field.name] ? 'border-red-400/70 focus:border-red-400 focus:ring-red-400/30' : 'border-slate-700/50 focus:border-emerald-500/60 focus:ring-emerald-400/30'}`}
-                  />
-                </div>
-                <p id={`${field.name}-help`} className="text-xs text-slate-500">{fieldHelp[field.name]}</p>
+                <input
+                  id={field.name}
+                  type="number"
+                  name={field.name}
+                  value={form[field.name]}
+                  onChange={handleChange}
+                  required
+                  step="0.1"
+                  placeholder={field.placeholder}
+                  className={`w-full bg-slate-800/60 border text-white rounded-xl px-4 py-3 text-sm placeholder-slate-600 focus:outline-none focus:ring-2 transition-all ${
+                    fieldErrors[field.name]
+                      ? 'border-red-400/70 focus:border-red-400 focus:ring-red-400/20'
+                      : 'border-slate-700 focus:border-emerald-500/60 focus:ring-emerald-400/20'
+                  }`}
+                />
+                <p className="text-xs text-slate-500">{fieldHelp[field.name]}</p>
                 {fieldErrors[field.name] && (
-                  <p id={`${field.name}-error`} className="text-xs text-red-300">{fieldErrors[field.name]}</p>
+                  <p className="text-xs text-red-400">{fieldErrors[field.name]}</p>
                 )}
               </div>
             ))}
+
+            {/* Region select */}
+            <div className="space-y-2">
+              <label htmlFor="region" className="block text-sm font-semibold text-slate-200">
+                Region
+              </label>
+              <div className="relative">
+                <select
+                  id="region"
+                  name="region"
+                  value={form.region}
+                  onChange={handleChange}
+                  className="w-full appearance-none bg-slate-800/60 border border-slate-700 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:border-emerald-500/60 focus:ring-emerald-400/20 transition-all cursor-pointer"
+                >
+                  {regions.map((r) => (
+                    <option key={r.value} value={r.value} className="bg-slate-900">
+                      {r.label} — {r.intensity} gCO₂/kWh
+                    </option>
+                  ))}
+                </select>
+                {/* Custom chevron */}
+                <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+                  <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+              <p className="text-xs text-slate-500">Grid carbon intensity varies by region.</p>
+            </div>
           </div>
 
           {error && (
-            <div className="flex items-start gap-3 text-sm text-red-300 bg-gradient-to-r from-red-500/15 to-red-600/10 border border-red-500/40 rounded-xl px-5 py-4 animate-fadeInUp">
-              <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <div className="flex items-start gap-3 text-sm text-red-300 bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3">
+              <svg className="w-4 h-4 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
               </svg>
-              <span className="font-medium">{error}</span>
+              <span>{error}</span>
             </div>
           )}
 
           {successMessage && (
-            <div className="flex items-start gap-3 text-sm text-emerald-200 bg-gradient-to-r from-emerald-400/10 to-emerald-500/10 border border-emerald-500/30 rounded-xl px-5 py-4 animate-fadeInUp">
-              <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1.25-4.5l-3.5-3.5 1.06-1.06 2.44 2.44 5.44-5.44 1.06 1.06-6.5 6.5z" clipRule="evenodd" />
+            <div className="flex items-start gap-3 text-sm text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-4 py-3">
+              <svg className="w-4 h-4 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
-              <span className="font-medium">{successMessage}</span>
+              <span>{successMessage}</span>
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full gradient-primary hover:shadow-2xl hover:shadow-emerald-500/50 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-3 group text-lg uppercase tracking-wide"
-          >
-            {loading ? (
-              <>
-                <LoadingSpinner size="sm" />
-                <span>Analyzing Your Infrastructure...</span>
-              </>
-            ) : (
-              <>
-                <span>Run Prediction</span>
-                <svg className="w-6 h-6 group-hover:translate-x-2 group-hover:scale-110 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 gradient-primary hover:shadow-lg hover:shadow-emerald-500/30 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 text-sm uppercase tracking-wide"
+            >
+              {loading ? (
+                <>
+                  <LoadingSpinner size="sm" />
+                  <span>Analyzing...</span>
+                </>
+              ) : (
+                <>
+                  <span>Run Prediction</span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </>
+              )}
+            </button>
+
+            {lastResult && (
+              <button
+                type="button"
+                onClick={handleDownloadReport}
+                disabled={reportLoading}
+                className="flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl border border-slate-700 bg-slate-900/80 text-slate-300 text-sm font-semibold hover:border-emerald-500/50 hover:text-emerald-300 transition-all disabled:opacity-40"
+              >
+                {reportLoading ? <LoadingSpinner size="sm" /> : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                    </svg>
+                    PDF Report
+                  </>
+                )}
+              </button>
             )}
-          </button>
+          </div>
         </form>
       </div>
     </section>

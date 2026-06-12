@@ -1,25 +1,6 @@
 # GHG Platform — Carbon Accounting System
 
-A portfolio-ready emissions prediction platform with advanced ML analytics, anomaly detection, and recommendations.
-
-## What changed
-
-- Added Random Forest alongside Linear Regression
-- Automatically compare models using training and testing scores
-- Select and save the best model to `backend/ml/model.pkl`
-- Store model metadata in `backend/ml/model_metrics.json`
-- Add anomaly detection for unusually high emissions
-- Add an efficiency score from 0–100
-- Add rule-based carbon reduction recommendations
-- Extend `/predict` to return analytics, anomaly status, and recommendations
-- Add `/model-metrics` endpoint for live model reporting
-- Enhance frontend dashboard with model metrics, warning UI, recommendation cards, and polished analytics UI
-- Add richer dashboard metric cards with icons, trend visuals, grouped overview sections, and stronger CTA styling
-- Improve sidebar active state highlighting and navigation feedback
-
-- Harden `/login` error handling to avoid internal server errors when stored password hashes are invalid or malformed.
-- Emit `authChanged` event after `loginUser()` stores the token and after `logout()` so other UI components can react immediately.
-- Update `Navbar` to listen for `authChanged` and `storage` events and update the displayed username/avatar without requiring a page refresh.
+A portfolio-ready emissions prediction platform built with FastAPI, React, and scikit-learn. Provides ML-based carbon footprint estimation, anomaly detection, sustainability scoring, optimization simulation, and PDF report generation.
 
 ## Quick Start
 
@@ -41,76 +22,26 @@ npm run dev
 
 ### Run both
 
-Use the included batch files:
-
-- `start-backend.bat`
-- `start-frontend.bat`
-- `start-all.bat`
-
-## GitHub CI
-
-This repository includes a GitHub Actions workflow at `.github/workflows/ci.yml`.
-The CI pipeline validates both backend and frontend builds on `push` and `pull_request` events.
-
-- Backend: installs Python dependencies and checks Python files with `py_compile`
-- Frontend: installs npm dependencies and runs `npm run build`
-
----
-
-## Current Project Structure
-
-```
-Carbon accounting/
-├── backend/
-│   ├── auth/
-│   │   └── auth.py
-│   ├── db/
-│   │   └── database.py
-│   ├── ml/
-│   │   ├── model.pkl
-│   │   └── model_metrics.json
-│   ├── scripts/
-│   │   ├── create_mysql_user.py
-│   │   └── test_create_user.py
-│   ├── utils/
-│   │   └── carbon_data.py
-│   ├── main.py
-│   └── requirements.txt
-├── frontend/
-│   ├── index.html
-│   ├── package.json
-│   ├── postcss.config.js
-│   ├── tailwind.config.js
-│   ├── vite.config.js
-│   ├── src/
-│   │   ├── App.jsx
-│   │   ├── main.jsx
-│   │   ├── index.css
-│   │   ├── pages/
-│   │   ├── components/
-│   │   └── services/
-│   └── README.md
-├── README.md
-├── start-all.bat
-├── start-backend.bat
-└── start-frontend.bat
+```powershell
+start-backend.bat
+start-frontend.bat
+# or both at once:
+start-all.bat
 ```
 
 ---
 
 ## Prerequisites
 
-- Python 3.10+ (or 3.11/3.14)
+- Python 3.10+
 - Node.js 18+
-- MySQL Server
+- MySQL Server running locally
 
-> SQLite is not used in this project. The backend requires a working MySQL database.
+> SQLite is not used. The backend requires a working MySQL database.
 
 ### MySQL setup
 
-If MySQL is installed and running, use the helper script in `backend/scripts/create_mysql_user.py` or configure your own credentials in `backend/db/database.py`.
-
-`backend/db/database.py` currently uses:
+Configure credentials in `backend/db/database.py`:
 
 ```python
 host="localhost"
@@ -119,123 +50,127 @@ password="newpassword123"
 database="ghg_db"
 ```
 
-If you need to change credentials, update those values and restart the backend.
+Tables (`users`, `usage_logs`) are created automatically on backend startup.
 
 ---
 
-## Backend behavior
+## Project Structure
 
-- `POST /signup` registers a new user.
-- `POST /login` returns a JWT token.
-- `POST /calculate` computes emissions and stores logs when the request is authenticated.
-- `POST /predict` returns ML-based emission predictions.
-- `GET /logs` returns the authenticated user's history.
-- `GET /model-metrics` returns model metadata.
-
-The backend also creates the required tables automatically during startup.
-
----
-
-## Frontend behavior
-
-The frontend is built with Vite, React, Tailwind CSS, and React Router.
-
-Features:
-
-- Login and signup flow
-- Dashboard with prediction form
-- Analytics page with charts and model metrics
-- Enhanced dashboard card visuals, icons, and trend indicators
-- Stronger call-to-action and clearer page hierarchy
-- Sidebar active-route highlighting for better navigation feedback
-- Protected routes for authenticated actions
-- Responsive layout for desktop and mobile
-
-## Screenshots
-
-- Dashboard (KPI-first, prediction panel, AI insights): frontend/public/screenshots/dashboard.png
-- Prediction results panel (premium card): frontend/public/screenshots/prediction_results.png
-- Simulator comparison (side-by-side): frontend/public/screenshots/simulator.png
-
-*(Add screenshots by running the app and saving images to the paths above.)*
-
-### Frontend Dashboard
-
-The redesigned dashboard focuses on KPI-first analytics and a premium results experience:
-
-- Hero: compact headline and short description (reduced height to prioritize analytics).
-- KPI Row: four high-level metrics immediately below the hero (`Sustainability Score`, `Total Predictions`, `Average Emissions`, `Carbon Reduction Potential`).
-- Main Layout: two-column split where the left column contains the `PredictionForm` and the right column contains a premium `PredictionResults` panel.
-- PredictionResults: focal premium card showing Predicted Emissions, Efficiency & Sustainability scores, Anomaly status, Top recommendation, and AI Insights.
-- AI Insights: short, prioritized insight cards produced by the backend model and shown beneath the results panel.
-- Carbon Reduction Simulator: side-by-side comparison showing current vs optimized emissions and potential savings.
-- Sidebar: compact width with clear navigation (Dashboard, Analytics, Simulator, History, Reports, Settings).
-- Footer: compact author footer with links to GitHub and LinkedIn.
-
-### UI/UX Improvements
-
-- KPI-first layout to surface important metrics immediately.
-- Premium results panel with stronger visual hierarchy (badges, glass cards, subtle gradients).
-- Circular `SustainabilityScore` widget with color-coded status (Excellent / Good / Moderate / Poor).
-- Glassmorphism card surfaces, subtle gradients, and gentle hover states.
-- Loading skeletons and graceful empty states for improved perceived performance.
-- Responsive behavior across desktop, tablet, and mobile breakpoints.
-- Accessibility: clear focus states and semantic markup for navigation and forms.
+```
+Carbon accounting/
+├── .github/
+│   └── workflows/
+│       └── ci.yml
+├── backend/
+│   ├── auth/
+│   │   └── auth.py
+│   ├── data/
+│   │   ├── carbon_intensity.csv
+│   │   └── emissions_data.csv
+│   ├── db/
+│   │   └── database.py
+│   ├── ml/
+│   │   ├── model.pkl
+│   │   ├── model_metrics.json
+│   │   └── train_model.py
+│   ├── scripts/
+│   │   ├── create_mysql_user.py
+│   │   └── test_create_user.py
+│   ├── utils/
+│   │   └── carbon_data.py
+│   ├── main.py
+│   └── requirements.txt
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── AnalyticsDashboard.jsx
+│   │   │   ├── BrandIcons.jsx
+│   │   │   ├── EmptyState.jsx
+│   │   │   ├── LoadingSpinner.jsx
+│   │   │   ├── MetricCard.jsx
+│   │   │   ├── Navbar.jsx
+│   │   │   ├── PredictionForm.jsx
+│   │   │   ├── PredictionResults.jsx
+│   │   │   ├── Sidebar.jsx
+│   │   │   └── SustainabilityScore.jsx
+│   │   ├── pages/
+│   │   │   ├── Analytics.jsx
+│   │   │   ├── Dashboard.jsx
+│   │   │   ├── History.jsx
+│   │   │   ├── Login.jsx
+│   │   │   ├── Reports.jsx
+│   │   │   ├── Settings.jsx
+│   │   │   ├── Signup.jsx
+│   │   │   └── Simulator.jsx
+│   │   ├── services/
+│   │   │   ├── api.js
+│   │   │   └── auth.js
+│   │   ├── App.jsx
+│   │   ├── index.css
+│   │   └── main.jsx
+│   ├── index.html
+│   ├── package.json
+│   ├── tailwind.config.js
+│   └── vite.config.js
+├── README.md
+├── start-all.bat
+├── start-backend.bat
+└── start-frontend.bat
+```
 
 ---
 
 ## API Endpoints
 
-| Method | Endpoint         | Auth required | Description |
-|--------|------------------|---------------|-------------|
-| GET    | `/`              | No            | Health check |
-| POST   | `/signup`        | No            | Register a new user |
-| POST   | `/login`         | No            | Login and receive JWT |
-| POST   | `/calculate`     | Optional      | Calculate emissions; optional auth logs the result |
-| POST   | `/predict`       | No            | ML-based prediction with efficiency score |
-| GET    | `/model-metrics` | No            | Get model name and scores |
-| GET    | `/logs`          | Yes           | Fetch user-specific logs |
+| Method | Endpoint           | Auth     | Description |
+|--------|--------------------|----------|-------------|
+| GET    | `/`                | No       | Health check |
+| POST   | `/signup`          | No       | Register a new user |
+| POST   | `/login`           | No       | Login and receive JWT |
+| POST   | `/calculate`       | Optional | Compute emissions; logs result if authenticated |
+| POST   | `/predict`         | No       | ML prediction with scores, anomaly, recommendations, simulation |
+| POST   | `/simulate`        | No       | Standalone optimization simulation |
+| GET    | `/forecast`        | Optional | 7-day and 30-day emission forecasts |
+| GET    | `/logs`            | Yes      | Fetch authenticated user's prediction history |
+| GET    | `/model-metrics`   | No       | Active model name, training/testing scores |
+| POST   | `/generate-report` | No       | Generate and download a PDF sustainability report |
 
-### Example requests
+### Example: `POST /predict`
 
-`POST /signup`
-
-```json
-{ "username": "johndoe", "email": "john@example.com", "password": "secret123" }
-```
-
-`POST /login`
-
-```json
-{ "email": "john@example.com", "password": "secret123" }
-```
-
-`POST /calculate`
-
+Request:
 ```json
 { "cpu": 20.0, "ram": 16.0, "storage": 300.0, "region": "IN" }
 ```
 
-`POST /predict`
-
+Response:
 ```json
-{ "cpu": 20.0, "ram": 16.0, "storage": 300.0, "region": "IN" }
+{
+  "cpu": 20.0,
+  "ram": 16.0,
+  "storage": 300.0,
+  "region": "IN",
+  "carbon_intensity": 700.0,
+  "predicted_emissions": 14.37,
+  "efficiency_score": 72,
+  "sustainability_score": 65,
+  "sustainability_rating": "Good",
+  "anomaly_detected": false,
+  "model_used": "Random Forest",
+  "recommendations": [{ "title": "...", "description": "...", "impact": "8-18%" }],
+  "insights": ["..."],
+  "simulation": {
+    "current_emissions": 14.37,
+    "optimized_emissions": 11.82,
+    "reduction_pct": 17.74,
+    "carbon_saved": 2.55,
+    "optimized_region": "FR"
+  }
+}
 ```
 
----
+### Example: `GET /logs` — requires `Authorization: Bearer <token>`
 
-## Notes
-
-- The current auth implementation uses `passlib` with `pbkdf2_sha256`.
-- The frontend expects the backend API base URL to be set via `VITE_API_URL`.
-- The repository is configured to run the backend on `127.0.0.1:8000` and frontend on `localhost:5173`.
-
-`/predict` response:
-```json
-{ "cpu": 20.0, "ram": 16.0, "storage": 300.0, "region": "IN", "carbon_intensity": 700.0, "predicted_emissions": 14.37 }
-```
-
-### GET `/logs` — requires `Authorization: Bearer <token>`
 ```json
 {
   "logs": [
@@ -247,17 +182,72 @@ The redesigned dashboard focuses on KPI-first analytics and a premium results ex
 
 ---
 
+## Frontend Pages
+
+| Route        | Description |
+|--------------|-------------|
+| `/`          | Dashboard — KPI cards, prediction form, results panel |
+| `/analytics` | Charts, model metrics, recent logs table |
+| `/simulator` | Live optimization simulator wired to `/simulate` |
+| `/history`   | Full prediction log table (requires login) |
+| `/reports`   | Download PDF sustainability report from last prediction |
+| `/settings`  | Profile info, logout, preferences, password verification |
+| `/login`     | Email + password → JWT stored in localStorage |
+| `/signup`    | Username, email, password → redirects to login |
+
+### Dashboard
+
+- KPI row (Sustainability Score, Total Predictions, Avg Emissions, Reduction Potential) updates live after each prediction via a `predictionMade` custom event
+- Two-column layout: `PredictionForm` left, `PredictionResults` right
+- `PredictionResults` shows predicted emissions, efficiency score, anomaly status, top recommendation, sustainability score widget, simulation preview, and AI insights
+- Region selector lets users choose from 6 regions with different carbon intensities
+- PDF report button appears after first prediction
+
+### Simulator
+
+- Live form → calls `/simulate` → shows current vs optimized emissions side-by-side
+- Progress bar visualises reduction percentage
+- Displays suggested optimized CPU, RAM, storage, and region
+
+### Reports
+
+- Reads last prediction from `localStorage` (persists across navigation)
+- Two download buttons: full sustainability report and executive summary
+- Both call the real `/generate-report` backend endpoint and download a PDF
+
+### Settings
+
+- Profile card shows username and email decoded from the JWT
+- Working Sign Out button
+- Toggle switches for preferences saved to `localStorage`
+- Password verification form (checks current password against backend)
+
+---
+
+## ML Model
+
+- Algorithms: Linear Regression and Random Forest (both trained, best test score wins)
+- Current best model: **Random Forest** (test score: 0.9974, training score: 0.9995)
+- Features: `cpu`, `ram`, `storage`, `carbon_intensity`
+- Trained on: `backend/data/emissions_data.csv`
+- Anomaly threshold: `mean + 2 × std_dev` of training emissions (~43.7 kg CO₂)
+- Efficiency score: 0–100, higher = lower emissions relative to mean
+- Sustainability score: composite of emissions, carbon intensity, anomaly status, and efficiency
+- To retrain: `py -3.13 backend/ml/train_model.py`
+
+---
+
 ## Database Schema
 
 **users**
 
-| Column          | Type         | Description       |
-|-----------------|--------------|-------------------|
-| id              | INT          | Auto-increment PK |
-| username        | VARCHAR(100) | Display name      |
-| email           | VARCHAR(255) | Unique            |
-| hashed_password | VARCHAR(255) | bcrypt hash       |
-| created_at      | TIMESTAMP    | Auto-generated    |
+| Column          | Type         | Description           |
+|-----------------|--------------|-----------------------|
+| id              | INT          | Auto-increment PK     |
+| username        | VARCHAR(100) | Display name          |
+| email           | VARCHAR(255) | Unique                |
+| hashed_password | VARCHAR(255) | pbkdf2_sha256 hash    |
+| created_at      | TIMESTAMP    | Auto-generated        |
 
 **usage_logs**
 
@@ -275,100 +265,60 @@ The redesigned dashboard focuses on KPI-first analytics and a premium results ex
 
 ---
 
-## ML Model
-
-- Algorithms: Linear Regression and Random Forest
-- Features: CPU, RAM, Storage, Carbon Intensity
-- Trained on: `data/emissions_data.csv` (100 samples)
-- Best-performing model is selected automatically and saved to `backend/ml/model.pkl`
-- Model metadata is stored in `backend/ml/model_metrics.json`
-- Anomaly detection logic: `predicted_emissions > (mean + 2 * std_dev)`
-- Efficiency score is a simple 0–100 rating where lower predicted emissions result in a higher score
-- To retrain: `py -3.13 ml/train_model.py`
-
----
-
-## Frontend Dashboard
-
-### Navigation
-- Fixed top navbar with logo, username, and logout
-- Collapsible sidebar with navigation links:
-  - Dashboard
-  - Predictions
-  - Analytics
-  - History
-  - Profile
-- Mobile responsive with overlay
-
-### Pages
-- `/` — Main dashboard with prediction form and analytics
-- `/login` — Email + password form → stores token → redirects to `/`
-- `/signup` — Username, email, password form → redirects to `/login`
-
-### Dashboard Components
-- Prediction form with improved validation and loading states
-- 4 metric cards showing key statistics
-- Emission trend line chart (last 10 predictions)
-- Regional emissions bar chart
-- Recent calculations table with hover effects
-- Empty states for no data scenarios
-- Loading spinners for async operations
-
-### UI/UX Improvements
-- Professional dark theme with gradient accents
-- Smooth animations and transitions
-- Hover effects on interactive elements
-- Responsive grid layouts
-- Custom scrollbar styling
-- Improved form focus states
-- Better error message displays
-- Reusable component architecture
-
----
-
 ## Supported Regions
 
 | Region | Country       | Carbon Intensity (gCO₂/kWh) |
 |--------|---------------|------------------------------|
 | IN     | India         | 700                          |
 | US     | United States | 400                          |
-| SE     | Sweden        | 100                          |
-| DE     | Germany       | 300                          |
-| FR     | France        | 80                           |
 | CN     | China         | 650                          |
+| DE     | Germany       | 300                          |
+| SE     | Sweden        | 100                          |
+| FR     | France        | 80                           |
 
 ---
 
 ## Tech Stack
 
-| Layer    | Technology                           |
-|----------|--------------------------------------|
-| Backend  | FastAPI, MySQL, python-jose, passlib |
-| ML       | scikit-learn, Linear Regression      |
-| Frontend | Next.js, Tailwind CSS, Chart.js      |
+| Layer    | Technology                                        |
+|----------|---------------------------------------------------|
+| Backend  | FastAPI, MySQL, python-jose, passlib, fpdf        |
+| ML       | scikit-learn (Linear Regression, Random Forest)   |
+| Frontend | Vite, React 19, Tailwind CSS, Chart.js, Axios     |
 
 ## Backend Dependencies
 
 ```
 fastapi
 uvicorn
+pandas
+scikit-learn
 mysql-connector-python
 python-jose[cryptography]
 passlib[bcrypt]
 bcrypt==4.0.1
-scikit-learn
+fpdf
 joblib
-pandas
 requests
 ```
 
 ---
 
+## GitHub CI
+
+Workflow at `.github/workflows/ci.yml` runs on `push` and `pull_request` to `main`/`master`:
+
+- **Backend** — installs dependencies, validates Python files with `py_compile`
+- **Frontend** — installs npm dependencies, runs `npm run build`
+
+---
+
 ## Troubleshooting
 
-- **Backend won't start** — ensure MySQL is running and credentials in `db/database.py` are correct
-- **`No module named jose`** — run `py -3.13 -m pip install "python-jose[cryptography]" "passlib[bcrypt]" "bcrypt==4.0.1"`
-- **Analytics not loading** — log out and log back in to get a fresh token, then make a prediction
-- **Signup "Failed to fetch"** — backend is not running, start it with `uvicorn main:app --reload`
-- **Port 3000 in use** — run `npm run dev -- -p 3001`
-- **Sidebar not showing** — ensure you're on desktop view or click the hamburger menu on mobile
+- **Backend won't start** — ensure MySQL is running and credentials in `backend/db/database.py` are correct
+- **`No module named jose`** — run `pip install "python-jose[cryptography]" "passlib[bcrypt]" "bcrypt==4.0.1"`
+- **`No module named fpdf`** — run `pip install fpdf`
+- **Analytics not loading** — log out and back in to get a fresh token, then make a prediction
+- **Signup "Failed to fetch"** — backend is not running; start it with `uvicorn main:app --reload`
+- **Reports page shows no data** — run a prediction on the Dashboard first; the last result is stored in `localStorage`
+- **Port conflict** — run `npm run dev -- --port 3001`
