@@ -36,22 +36,22 @@ export default function Dashboard() {
   return (
     <div className="space-y-12">
       <section className="animate-fadeInUp space-y-4">
-        <div>
-          <div className="flex items-center gap-4 mb-6">
+        <div className="stagger">
+          <div className="flex items-center gap-4 mb-6 animate-fadeInUp">
             <div className="w-2 h-12 bg-gradient-to-b from-emerald-400 to-emerald-600 rounded-full shadow-lg shadow-emerald-500/50" />
             <div>
               <span className="text-sm font-bold text-emerald-400 tracking-widest uppercase">Welcome Back</span>
               <p className="text-slate-400 text-sm mt-1">AI-Powered Carbon Emission Tracking</p>
             </div>
           </div>
-          <h1 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-emerald-300 via-green-300 to-teal-300 bg-clip-text text-transparent leading-tight">
+          <h1 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-emerald-300 via-green-300 to-teal-300 bg-clip-text text-transparent leading-tight animate-fadeInUp">
             Track Your Carbon Footprint
           </h1>
-          <p className="text-xl text-slate-400 max-w-2xl mt-6 leading-relaxed">
+          <p className="text-xl text-slate-400 max-w-2xl mt-6 leading-relaxed animate-fadeInUp">
             Advanced AI-powered predictions for computing infrastructure emissions. Analyze, optimize, and reduce your environmental impact with precision.
           </p>
 
-          <div className="mt-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div className="mt-6 flex flex-col sm:flex-row items-start sm:items-center gap-4 animate-fadeInUp">
             <a
               href="#predictions"
               className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-emerald-400 to-teal-400 px-6 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:-translate-y-0.5"
@@ -68,7 +68,7 @@ export default function Dashboard() {
         </div>
 
         {/* KPI Row — live after first prediction */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 stagger">
           <MetricCard
             title="Sustainability Score"
             value={kpi.sustainabilityScore !== null ? kpi.sustainabilityScore : '—'}
@@ -102,14 +102,14 @@ export default function Dashboard() {
         </div>
       </section>
 
-      <section className="animate-fadeInUp" id="predictions">
+      <section className="animate-fadeInUp delay-300" id="predictions">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.05fr] gap-6">
           <PredictionForm />
           <PredictionResults />
         </div>
       </section>
 
-      <footer className="border-t border-slate-800 pt-6 flex items-center justify-between text-sm text-slate-500">
+      <footer className="animate-fadeInUp delay-400 border-t border-slate-800 pt-6 flex items-center justify-between text-sm text-slate-500">
         <p>
           Built by{' '}
           <a href="https://github.com/Niharxd" className="text-emerald-400 hover:text-emerald-300 transition">

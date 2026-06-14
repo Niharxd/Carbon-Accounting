@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
@@ -11,32 +11,46 @@ import History from './pages/History';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
 
+function PageTransition({ children }) {
+  const location = useLocation();
+  return (
+    <div key={location.pathname} className="page-enter">
+      {children}
+    </div>
+  );
+}
+
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white relative overflow-hidden">
-      <Navbar isMenuOpen={sidebarOpen} onMenuClick={() => setSidebarOpen(true)} />
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white relative overflow-x-hidden">
+      {/* Ambient background orbs */}
+      <div className="orb orb-emerald" aria-hidden="true" />
+      <div className="orb orb-blue" aria-hidden="true" />
+      <div className="orb orb-purple" aria-hidden="true" />
 
+      <Navbar isMenuOpen={sidebarOpen} onMenuClick={() => setSidebarOpen(true)} />
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <div className="flex min-h-screen pt-16">
-        {/* Spacer for fixed sidebar on desktop */}
         <div className="hidden lg:block lg:w-72 flex-shrink-0" />
 
         <main className="flex-1 relative z-10 min-w-0">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12 space-y-16">
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/analytics" element={<Analytics />} />
-              <Route path="/simulator" element={<Simulator />} />
-              <Route path="/history" element={<History />} />
-              <Route path="/reports" element={<Reports />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
+            <PageTransition>
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/analytics" element={<Analytics />} />
+                <Route path="/simulator" element={<Simulator />} />
+                <Route path="/history" element={<History />} />
+                <Route path="/reports" element={<Reports />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </PageTransition>
           </div>
         </main>
       </div>

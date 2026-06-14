@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 
 const colors = {
   blue: {
@@ -31,10 +31,42 @@ const colors = {
   },
 };
 
+function useCountUp(target, duration = 700) {
+  const [display, setDisplay] = useState(target);
+  const rafRef = useRef(null);
+  const prevRef = useRef(target);
+
+  useEffect(() => {
+    const from = prevRef.current;
+    const to = target;
+    if (from === to) return;
+
+    const start = performance.now();
+    function step(now) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = from + (to - from) * eased;
+      setDisplay(Number.isInteger(to) ? Math.round(current) : parseFloat(current.toFixed(2)));
+      if (progress < 1) rafRef.current = requestAnimationFrame(step);
+      else prevRef.current = to;
+    }
+    rafRef.current = requestAnimationFrame(step);
+    return () => rafRef.current && cancelAnimationFrame(rafRef.current);
+  }, [target, duration]);
+
+  return display;
+}
+
 function MetricCard({ title, value, unit, icon, color = 'blue', description }) {
   const c = colors[color] || colors.blue;
-  const isEmpty = value === '—' || value === null || value === undefined;
   const sparkHeights = [6, 12, 10, 16, 9];
+
+  // Only animate if value is a plain number
+  const isNumeric = typeof value === 'number' && !isNaN(value);
+  const isEmpty = value === '—' || value === null || value === undefined;
+  const animated = useCountUp(isNumeric ? value : 0);
+  const displayValue = isNumeric ? animated : value;
 
   return (
     <div
@@ -49,18 +81,22 @@ function MetricCard({ title, value, unit, icon, color = 'blue', description }) {
       <div className="relative min-w-0 flex-1">
         <p className="text-slate-500 text-xs font-bold uppercase tracking-widest truncate">{title}</p>
         <div className="flex items-baseline gap-1.5 mt-2">
-          <span className={`text-3xl font-black ${isEmpty ? 'text-slate-600' : c.value}`}>{value}</span>
+          <span
+            key={String(value)}
+            className={`text-3xl font-black ${isEmpty ? 'text-slate-600' : c.value} ${isNumeric ? 'animate-countUp' : ''}`}
+          >
+            {displayValue}
+          </span>
           {unit && !isEmpty && <span className="text-slate-500 text-xs font-semibold">{unit}</span>}
         </div>
         {description && <p className="text-slate-500 text-xs mt-2 leading-4">{description}</p>}
       </div>
 
-      {/* Sparkline */}
       <div className="flex items-end gap-1 h-6">
         {sparkHeights.map((height, idx) => (
           <span
             key={idx}
-            className={`block rounded-full transition-all duration-300 ${isEmpty ? 'bg-slate-800' : 'bg-white/10'}`}
+            className={`block rounded-full transition-all duration-500 ${isEmpty ? 'bg-slate-800' : 'bg-white/10 group-hover:bg-white/20'}`}
             style={{ width: 4, height: `${height}px` }}
           />
         ))}

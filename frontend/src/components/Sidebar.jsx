@@ -5,21 +5,21 @@ import {
   BrandLogo,
   DashboardIcon,
   AnalyticsIcon,
+  SimulatorIcon,
+  HistoryIcon,
+  ReportsIcon,
+  SettingsIcon,
   LoginIcon,
-  SignupIcon,
-  QuickNavIcon,
-  RegionIcon,
-  ModelIcon,
 } from './BrandIcons';
 
 const navItems = [
-  { name: 'Dashboard', to: '/', icon: <DashboardIcon className="text-emerald-400" />, color: 'from-emerald-400 to-teal-600', bgColor: 'bg-emerald-500/20' },
-  { name: 'Analytics', to: '/analytics', icon: <AnalyticsIcon className="text-slate-300" />, color: 'from-slate-500 to-slate-700', bgColor: 'bg-slate-700/20' },
-  { name: 'Simulator', to: '/simulator', icon: <QuickNavIcon className="text-emerald-300" />, color: 'from-emerald-400 to-teal-600', bgColor: 'bg-emerald-500/20' },
-  { name: 'History', to: '/history', icon: <RegionIcon className="text-slate-300" />, color: 'from-slate-500 to-slate-700', bgColor: 'bg-slate-700/20' },
-  { name: 'Reports', to: '/reports', icon: <ModelIcon className="text-slate-300" />, color: 'from-blue-500 to-cyan-600', bgColor: 'bg-blue-500/10' },
-  { name: 'Settings', to: '/settings', icon: <SignupIcon className="text-teal-300" />, color: 'from-teal-400 to-emerald-600', bgColor: 'bg-teal-500/20' },
-  { name: 'Login', to: '/login', icon: <LoginIcon className="text-emerald-400" />, color: 'from-emerald-400 to-emerald-600', bgColor: 'bg-emerald-500/20' },
+  { name: 'Dashboard', to: '/',          icon: <DashboardIcon className="w-4 h-4" />,  color: 'from-emerald-400 to-teal-600',  bgColor: 'bg-emerald-500/20' },
+  { name: 'Analytics', to: '/analytics', icon: <AnalyticsIcon className="w-4 h-4" />,  color: 'from-blue-400 to-blue-600',     bgColor: 'bg-blue-500/20' },
+  { name: 'Simulator', to: '/simulator', icon: <SimulatorIcon className="w-4 h-4" />,  color: 'from-teal-400 to-cyan-600',     bgColor: 'bg-teal-500/20' },
+  { name: 'History',   to: '/history',   icon: <HistoryIcon   className="w-4 h-4" />,  color: 'from-slate-400 to-slate-600',   bgColor: 'bg-slate-700/30' },
+  { name: 'Reports',   to: '/reports',   icon: <ReportsIcon   className="w-4 h-4" />,  color: 'from-blue-500 to-cyan-600',     bgColor: 'bg-blue-500/15' },
+  { name: 'Settings',  to: '/settings',  icon: <SettingsIcon  className="w-4 h-4" />,  color: 'from-teal-400 to-emerald-600',  bgColor: 'bg-teal-500/20' },
+  { name: 'Login',     to: '/login',     icon: <LoginIcon     className="w-4 h-4" />,  color: 'from-emerald-400 to-emerald-600', bgColor: 'bg-emerald-500/20' },
 ];
 
 export default function Sidebar({ isOpen, onClose }) {
@@ -82,7 +82,7 @@ export default function Sidebar({ isOpen, onClose }) {
                 key={item.name}
                 to={item.to}
                 onClick={onClose}
-                className={`group relative flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-200 overflow-hidden ${
+                className={`group relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 overflow-hidden ${
                   isActive
                     ? 'text-white bg-slate-800/70 border border-emerald-500/40 shadow-lg shadow-emerald-500/10'
                     : 'text-slate-300 hover:text-white'
@@ -91,7 +91,7 @@ export default function Sidebar({ isOpen, onClose }) {
               >
                 <div className={`absolute inset-0 bg-gradient-to-r ${item.color} ${isActive ? 'opacity-15' : 'opacity-0 group-hover:opacity-15'} transition-opacity duration-300 rounded-xl`} />
                 <div className="absolute inset-0 border border-transparent rounded-xl transition-colors duration-300" />
-                <div className={`relative flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center ${item.bgColor} group-hover:scale-110 transition-transform duration-200`}>
+                <div className={`relative flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center ${item.bgColor} group-hover:scale-110 transition-transform duration-200`}>
                   {item.icon}
                 </div>
                 <span className="relative text-sm font-semibold group-hover:translate-x-1 transition-transform duration-200">

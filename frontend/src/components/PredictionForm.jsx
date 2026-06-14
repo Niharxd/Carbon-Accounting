@@ -183,7 +183,13 @@ export default function PredictionForm() {
                   </svg>
                 </div>
               </div>
-              <p className="text-xs text-slate-500">Grid carbon intensity varies by region.</p>
+              {/* Live carbon intensity preview */}
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-slate-500">Grid carbon intensity</p>
+                <span className="text-xs font-bold text-emerald-400 animate-countUp">
+                  {regions.find((r) => r.value === form.region)?.intensity ?? '—'} gCO₂/kWh
+                </span>
+              </div>
             </div>
           </div>
 

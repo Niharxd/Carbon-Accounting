@@ -1,15 +1,20 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getUsernameFromToken, logout } from '../services/auth';
+import { fetchModelMetrics } from '../services/api';
 import { BrandLogo } from './BrandIcons';
 
 export default function Navbar({ onMenuClick, isMenuOpen = false }) {
   const navigate = useNavigate();
   const [username, setUsername] = useState(null);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [modelName, setModelName] = useState(null);
 
   useEffect(() => {
     setUsername(getUsernameFromToken());
+    fetchModelMetrics()
+      .then((m) => setModelName(m?.model_name || null))
+      .catch(() => {});
 
     // update username when authentication changes (login/logout)
     const onAuthChanged = () => setUsername(getUsernameFromToken());
@@ -76,7 +81,7 @@ export default function Navbar({ onMenuClick, isMenuOpen = false }) {
       <div className="hidden md:flex items-center gap-4">
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30">
           <span className="flex w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span className="text-xs text-emerald-300 font-semibold">ML Model Active</span>
+          <span className="text-xs text-emerald-300 font-semibold">{modelName || 'ML Model'} Active</span>
         </div>
       </div>
 

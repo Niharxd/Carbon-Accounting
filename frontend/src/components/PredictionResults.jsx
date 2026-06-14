@@ -69,7 +69,13 @@ export default function PredictionResults() {
           {/* Predicted emissions */}
           <div className="rounded-2xl p-4 bg-slate-900/80 border border-slate-700/50">
             <p className="text-slate-400 uppercase tracking-widest text-[11px] font-semibold mb-1">Predicted Emissions</p>
-            <p className="text-4xl font-black text-emerald-300">{result.predicted_emissions.toFixed(2)}</p>
+            <p className={`text-4xl font-black ${
+              result.anomaly_detected
+                ? 'text-red-400'
+                : result.predicted_emissions > 18.8
+                ? 'text-amber-300'
+                : 'text-emerald-300'
+            }`}>{result.predicted_emissions.toFixed(2)}</p>
             <p className="text-slate-500 text-xs mt-1">kg CO₂ for this configuration</p>
           </div>
 
