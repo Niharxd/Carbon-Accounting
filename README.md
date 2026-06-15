@@ -1,6 +1,6 @@
 # GHG Platform — Carbon Accounting System
 
-A portfolio-ready emissions prediction platform built with FastAPI, React, and scikit-learn. Provides ML-based carbon footprint estimation, anomaly detection, sustainability scoring, optimization simulation, and PDF report generation.
+A portfolio-ready emissions prediction platform built with FastAPI, React, and scikit-learn. Features an animated splash screen, SaaS-style landing page, ML-based carbon footprint estimation, anomaly detection, sustainability scoring, optimization simulation, and PDF report generation.
 
 ## Quick Start
 

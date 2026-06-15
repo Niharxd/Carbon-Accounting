@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, BrowserRouter } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
+import Splash from './pages/Splash';
 import Landing from './pages/Landing';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
@@ -22,7 +23,6 @@ function PageTransition({ children }) {
   );
 }
 
-// Shell wraps all app routes (navbar + sidebar)
 function AppShell() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -41,14 +41,14 @@ function AppShell() {
           <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12 space-y-16">
             <PageTransition>
               <Routes>
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/analytics" element={<Analytics />} />
-                <Route path="/simulator" element={<Simulator />} />
-                <Route path="/history" element={<History />} />
-                <Route path="/reports" element={<Reports />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="analytics" element={<Analytics />} />
+                <Route path="simulator" element={<Simulator />} />
+                <Route path="history" element={<History />} />
+                <Route path="reports" element={<Reports />} />
+                <Route path="settings" element={<Settings />} />
+                <Route path="login" element={<Login />} />
+                <Route path="signup" element={<Signup />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </PageTransition>
@@ -62,7 +62,8 @@ function AppShell() {
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<Landing />} />
+      <Route path="/" element={<Splash />} />
+      <Route path="/landing" element={<Landing />} />
       <Route path="/*" element={<AppShell />} />
     </Routes>
   );

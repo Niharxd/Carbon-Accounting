@@ -105,14 +105,14 @@ const techStack = [
 ];
 
 const colorMap = {
-  emerald: { border: 'border-emerald-500/30', bg: 'bg-emerald-500/10', icon: 'text-emerald-400', badge: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' },
-  blue:    { border: 'border-blue-500/30',    bg: 'bg-blue-500/10',    icon: 'text-blue-400',    badge: 'bg-blue-500/15 text-blue-300 border-blue-500/30' },
-  purple:  { border: 'border-purple-500/30',  bg: 'bg-purple-500/10',  icon: 'text-purple-400',  badge: 'bg-purple-500/15 text-purple-300 border-purple-500/30' },
-  teal:    { border: 'border-teal-500/30',    bg: 'bg-teal-500/10',    icon: 'text-teal-400',    badge: 'bg-teal-500/15 text-teal-300 border-teal-500/30' },
-  orange:  { border: 'border-orange-500/30',  bg: 'bg-orange-500/10',  icon: 'text-orange-400',  badge: 'bg-orange-500/15 text-orange-300 border-orange-500/30' },
-  red:     { border: 'border-red-500/30',     bg: 'bg-red-500/10',     icon: 'text-red-400',     badge: 'bg-red-500/15 text-red-300 border-red-500/30' },
-  cyan:    { border: 'border-cyan-500/30',    bg: 'bg-cyan-500/10',    icon: 'text-cyan-400',    badge: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30' },
-  pink:    { border: 'border-pink-500/30',    bg: 'bg-pink-500/10',    icon: 'text-pink-400',    badge: 'bg-pink-500/15 text-pink-300 border-pink-500/30' },
+  emerald: { border: 'border-emerald-500/30', bg: 'bg-emerald-500/10', icon: 'text-emerald-400', dot: 'bg-emerald-400', badge: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' },
+  blue:    { border: 'border-blue-500/30',    bg: 'bg-blue-500/10',    icon: 'text-blue-400',    dot: 'bg-blue-400',    badge: 'bg-blue-500/15 text-blue-300 border-blue-500/30' },
+  purple:  { border: 'border-purple-500/30',  bg: 'bg-purple-500/10',  icon: 'text-purple-400',  dot: 'bg-purple-400',  badge: 'bg-purple-500/15 text-purple-300 border-purple-500/30' },
+  teal:    { border: 'border-teal-500/30',    bg: 'bg-teal-500/10',    icon: 'text-teal-400',    dot: 'bg-teal-400',    badge: 'bg-teal-500/15 text-teal-300 border-teal-500/30' },
+  orange:  { border: 'border-orange-500/30',  bg: 'bg-orange-500/10',  icon: 'text-orange-400',  dot: 'bg-orange-400',  badge: 'bg-orange-500/15 text-orange-300 border-orange-500/30' },
+  red:     { border: 'border-red-500/30',     bg: 'bg-red-500/10',     icon: 'text-red-400',     dot: 'bg-red-400',     badge: 'bg-red-500/15 text-red-300 border-red-500/30' },
+  cyan:    { border: 'border-cyan-500/30',    bg: 'bg-cyan-500/10',    icon: 'text-cyan-400',    dot: 'bg-cyan-400',    badge: 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30' },
+  pink:    { border: 'border-pink-500/30',    bg: 'bg-pink-500/10',    icon: 'text-pink-400',    dot: 'bg-pink-400',    badge: 'bg-pink-500/15 text-pink-300 border-pink-500/30' },
 };
 
 /* ── Component ──────────────────────────────────────────────────────────── */
@@ -274,7 +274,7 @@ export default function Landing() {
             const c = colorMap[t.color];
             return (
               <div key={t.label} className={`flex items-center gap-2.5 rounded-2xl border ${c.border} ${c.bg} px-5 py-3`}>
-                <div className={`w-2 h-2 rounded-full ${c.icon.replace('text-', 'bg-')}`} />
+                <div className={`w-2 h-2 rounded-full ${c.dot}`} />
                 <div>
                   <p className={`text-sm font-bold ${c.icon}`}>{t.label}</p>
                   <p className="text-xs text-slate-500">{t.sublabel}</p>
