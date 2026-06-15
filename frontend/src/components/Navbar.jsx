@@ -68,7 +68,7 @@ export default function Navbar({ onMenuClick, isMenuOpen = false }) {
         </svg>
       </button>
 
-      <Link to="/" className="flex items-center gap-3 mr-auto group">
+      <Link to="/dashboard" className="flex items-center gap-3 mr-auto group">
         <div className="flex items-center justify-center rounded-2xl bg-slate-900/70 p-2 shadow-lg shadow-emerald-500/20 transition-transform group-hover:-translate-y-0.5">
           <BrandLogo className="w-11 h-11" />
         </div>
@@ -79,10 +79,12 @@ export default function Navbar({ onMenuClick, isMenuOpen = false }) {
       </Link>
 
       <div className="hidden md:flex items-center gap-4">
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30">
-          <span className="flex w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span className="text-xs text-emerald-300 font-semibold">{modelName || 'ML Model'} Active</span>
-        </div>
+        {modelName && (
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30">
+            <span className="flex w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-xs text-emerald-300 font-semibold">{modelName} Active</span>
+          </div>
+        )}
       </div>
 
       <div className="flex items-center gap-3">

@@ -13,7 +13,7 @@ import {
 } from './BrandIcons';
 
 const navItems = [
-  { name: 'Dashboard', to: '/',          icon: <DashboardIcon className="w-4 h-4" />,  color: 'from-emerald-400 to-teal-600',  bgColor: 'bg-emerald-500/20' },
+  { name: 'Dashboard', to: '/dashboard', icon: <DashboardIcon className="w-4 h-4" />, color: 'from-emerald-400 to-teal-600', bgColor: 'bg-emerald-500/20' },
   { name: 'Analytics', to: '/analytics', icon: <AnalyticsIcon className="w-4 h-4" />,  color: 'from-blue-400 to-blue-600',     bgColor: 'bg-blue-500/20' },
   { name: 'Simulator', to: '/simulator', icon: <SimulatorIcon className="w-4 h-4" />,  color: 'from-teal-400 to-cyan-600',     bgColor: 'bg-teal-500/20' },
   { name: 'History',   to: '/history',   icon: <HistoryIcon   className="w-4 h-4" />,  color: 'from-slate-400 to-slate-600',   bgColor: 'bg-slate-700/30' },

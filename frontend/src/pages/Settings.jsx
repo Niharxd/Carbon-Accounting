@@ -109,7 +109,7 @@ export default function Settings() {
             Settings
           </h1>
           <Link
-            to="/"
+            to="/dashboard"
             className="inline-flex items-center gap-2 rounded-2xl border border-slate-700 bg-slate-900/80 px-4 py-3 text-sm font-semibold text-slate-100 transition hover:border-teal-400 hover:text-teal-300"
           >
             ← Dashboard

@@ -36,7 +36,7 @@ export default function History() {
             Prediction History
           </h1>
           <Link
-            to="/"
+            to="/dashboard"
             className="inline-flex items-center gap-2 rounded-2xl border border-slate-700 bg-slate-900/80 px-4 py-3 text-sm font-semibold text-slate-100 transition hover:border-slate-400"
           >
             ← Dashboard
@@ -66,7 +66,7 @@ export default function History() {
 
         {token && !loading && !error && logs.length === 0 && (
           <div className="p-10 text-center text-slate-400 text-sm">
-            No predictions yet. <Link to="/" className="text-emerald-400 hover:underline">Run one now →</Link>
+            No predictions yet. <Link to="/dashboard" className="text-emerald-400 hover:underline">Run one now →</Link>
           </div>
         )}
 

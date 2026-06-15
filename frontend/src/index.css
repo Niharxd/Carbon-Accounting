@@ -147,7 +147,10 @@ select option {
   66%       { transform: translate(-14px, 12px) scale(0.96); }
 }
 
-/* ── Count-up flash ─────────────────────────────────── */
+/* smooth scroll for anchor links */
+html {
+  scroll-behavior: smooth;
+}
 @keyframes countUp {
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }

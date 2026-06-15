@@ -42,9 +42,7 @@ export default function Simulator() {
     }
   };
 
-  const reductionBarWidth = result
-    ? Math.max(5, 100 - result.reduction_pct)
-    : 100;
+  const reductionBarPct = result ? Math.max(2, result.reduction_pct) : 0;
 
   return (
     <div className="space-y-10 animate-fadeInUp">
@@ -66,7 +64,7 @@ export default function Simulator() {
             </p>
           </div>
           <Link
-            to="/"
+            to="/dashboard"
             className="inline-flex items-center gap-2 rounded-2xl border border-slate-700 bg-slate-900/80 px-4 py-3 text-sm font-semibold text-slate-100 transition hover:border-emerald-400 hover:text-emerald-300"
           >
             ← Dashboard
@@ -119,6 +117,12 @@ export default function Simulator() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
                   </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <p className="text-[11px] text-slate-500">Carbon intensity</p>
+                  <span className="text-[11px] font-bold text-emerald-400">
+                    {regions.find((r) => r.value === form.region)?.intensity ?? '—'} gCO₂/kWh
+                  </span>
                 </div>
               </div>
             </div>
@@ -180,7 +184,7 @@ export default function Simulator() {
                 <div className="h-2 rounded-full bg-slate-700 overflow-hidden">
                   <div
                     className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-teal-400 transition-all duration-700"
-                    style={{ width: `${Math.max(5, 100 - reductionBarWidth)}%` }}
+                    style={{ width: `${reductionBarPct}%` }}
                   />
                 </div>
                 <p className="text-slate-400 text-xs">

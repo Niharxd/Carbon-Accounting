@@ -6,11 +6,18 @@ import MetricCard from '../components/MetricCard';
 import { ScoreIcon, TotalIcon, AverageIcon, PeakIcon } from '../components/BrandIcons';
 
 export default function Dashboard() {
-  const [kpi, setKpi] = useState({
-    sustainabilityScore: null,
-    totalPredictions: 0,
-    avgEmissions: null,
-    reductionPotential: null,
+  const [kpi, setKpi] = useState(() => {
+    try {
+      const stored = localStorage.getItem('ghg_kpi');
+      return stored ? JSON.parse(stored) : {
+        sustainabilityScore: null,
+        totalPredictions: 0,
+        avgEmissions: null,
+        reductionPotential: null,
+      };
+    } catch {
+      return { sustainabilityScore: null, totalPredictions: 0, avgEmissions: null, reductionPotential: null };
+    }
   });
 
   useEffect(() => {
@@ -21,12 +28,14 @@ export default function Dashboard() {
         const newTotal = prev.totalPredictions + 1;
         const prevAvg = prev.avgEmissions ?? 0;
         const newAvg = (prevAvg * (newTotal - 1) + result.predicted_emissions) / newTotal;
-        return {
+        const next = {
           sustainabilityScore: result.sustainability_score,
           totalPredictions: newTotal,
           avgEmissions: parseFloat(newAvg.toFixed(2)),
           reductionPotential: simulation ? simulation.reduction_pct : prev.reductionPotential,
         };
+        try { localStorage.setItem('ghg_kpi', JSON.stringify(next)); } catch {}
+        return next;
       });
     }
     window.addEventListener('predictionMade', handle);

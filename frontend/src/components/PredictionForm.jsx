@@ -30,7 +30,6 @@ export default function PredictionForm() {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
     setFieldErrors((prev) => ({ ...prev, [name]: '' }));
-    setSuccessMessage('');
   };
 
   const validateForm = () => {

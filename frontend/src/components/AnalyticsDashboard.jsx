@@ -25,25 +25,29 @@ const chartOptions = {
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
-    legend: { labels: { color: '#cbd5e1', font: { size: 13, weight: '600' } } },
+    legend: { labels: { color: '#cbd5e1', font: { size: 12, weight: '600' } } },
     tooltip: {
-      backgroundColor: 'rgba(15, 23, 42, 0.9)',
+      backgroundColor: 'rgba(15, 23, 42, 0.95)',
       borderColor: 'rgba(16, 185, 129, 0.3)',
       borderWidth: 1,
       titleColor: '#f1f5f9',
-      bodyColor: '#cbd5e1',
+      bodyColor: '#94a3b8',
       padding: 12,
-      borderRadius: 8,
+      borderRadius: 10,
+      callbacks: {
+        label: (ctx) => ` ${ctx.parsed.y} kg CO₂`,
+        title: (items) => items[0]?.label || '',
+      },
     },
   },
   scales: {
     x: {
-      ticks: { color: '#94a3b8', font: { size: 12 } },
-      grid: { color: 'rgba(16, 185, 129, 0.05)' },
+      ticks: { color: '#64748b', font: { size: 11 } },
+      grid: { color: 'rgba(255,255,255,0.03)' },
     },
     y: {
-      ticks: { color: '#94a3b8', font: { size: 12 } },
-      grid: { color: 'rgba(16, 185, 129, 0.05)' },
+      ticks: { color: '#64748b', font: { size: 11 }, callback: (v) => `${v} kg` },
+      grid: { color: 'rgba(255,255,255,0.03)' },
     },
   },
 };
@@ -81,7 +85,9 @@ export default function AnalyticsDashboard() {
 
   const lineData = useMemo(
     () => ({
-      labels: recent.map((_, index) => `Pred #${index + 1}`),
+      labels: recent.map((l) =>
+        new Date(l.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+      ),
       datasets: [
         {
           label: 'Emissions (kg CO₂)',
@@ -122,6 +128,7 @@ export default function AnalyticsDashboard() {
           backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'],
           borderRadius: 8,
           borderSkipped: false,
+          hoverBackgroundColor: ['#60a5fa', '#34d399', '#fbbf24', '#f87171', '#a78bfa', '#f472b6'],
         },
       ],
     }),
@@ -371,7 +378,7 @@ export default function AnalyticsDashboard() {
             <thead>
               <tr className="border-b border-emerald-500/20 bg-gradient-to-r from-transparent via-emerald-500/5 to-transparent">
                 {['CPU', 'RAM', 'Storage', 'Region', 'Emissions', 'Time'].map((heading) => (
-                  <th key={heading} className="px-8 py-5 text-left text-xs font-black text-slate-300 uppercase tracking-wider">
+                  <th key={heading} className="px-5 py-3.5 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">
                     {heading}
                   </th>
                 ))}
@@ -379,17 +386,17 @@ export default function AnalyticsDashboard() {
             </thead>
             <tbody>
               {logs.slice(0, 10).map((log, index) => (
-                <tr key={log.id || index} className="border-b border-emerald-500/10 hover:bg-gradient-to-r hover:from-emerald-500/10 hover:via-transparent hover:to-transparent transition-colors group">
-                  <td className="px-8 py-5 text-slate-200 font-bold group-hover:text-emerald-300 transition-colors">{log.cpu}</td>
-                  <td className="px-8 py-5 text-slate-300">{log.ram} GB</td>
-                  <td className="px-8 py-5 text-slate-300">{log.storage} GB</td>
-                  <td className="px-8 py-5">
-                    <span className="px-4 py-2 bg-gradient-to-r from-blue-500/20 to-blue-600/10 text-blue-300 rounded-lg text-xs font-bold border border-blue-500/30 group-hover:border-blue-400/50 transition-all group-hover:bg-gradient-to-r group-hover:from-blue-500/30 group-hover:to-blue-600/20">
+                <tr key={log.id || index} className="border-b border-slate-800 hover:bg-slate-800/40 transition-colors group">
+                  <td className="px-5 py-3 text-slate-200 font-semibold group-hover:text-emerald-300 transition-colors">{log.cpu}</td>
+                  <td className="px-5 py-3 text-slate-300">{log.ram} GB</td>
+                  <td className="px-5 py-3 text-slate-300">{log.storage} GB</td>
+                  <td className="px-5 py-3">
+                    <span className="px-2.5 py-1 bg-blue-500/15 text-blue-300 rounded-lg text-xs font-bold border border-blue-500/30">
                       {log.region}
                     </span>
                   </td>
-                  <td className="px-8 py-5 text-emerald-400 font-black text-lg">{log.emissions.toFixed(2)}</td>
-                  <td className="px-8 py-5 text-slate-500 text-xs font-semibold">{new Date(log.timestamp).toLocaleString()}</td>
+                  <td className="px-5 py-3 text-emerald-400 font-black">{log.emissions.toFixed(2)}</td>
+                  <td className="px-5 py-3 text-slate-500 text-xs">{new Date(log.timestamp).toLocaleString()}</td>
                 </tr>
               ))}
             </tbody>

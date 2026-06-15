@@ -106,7 +106,7 @@ export default function Reports() {
             </p>
           </div>
           <Link
-            to="/"
+            to="/dashboard"
             className="inline-flex items-center gap-2 rounded-2xl border border-slate-700 bg-slate-900/80 px-4 py-3 text-sm font-semibold text-slate-100 transition hover:border-blue-400 hover:text-blue-300"
           >
             ← Dashboard
@@ -147,7 +147,7 @@ export default function Reports() {
           ) : (
             <div className="rounded-xl border border-dashed border-slate-700 p-6 text-center space-y-2">
               <p className="text-slate-400 text-sm">No prediction data yet.</p>
-              <Link to="/" className="text-emerald-400 text-sm hover:underline">Run a prediction first →</Link>
+              <Link to="/dashboard" className="text-emerald-400 text-sm hover:underline">Run a prediction first →</Link>
             </div>
           )}
 
