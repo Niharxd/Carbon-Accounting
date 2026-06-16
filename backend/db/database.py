@@ -1,3 +1,4 @@
+import os
 import mysql.connector
 from mysql.connector import Error
 
@@ -5,10 +6,11 @@ from mysql.connector import Error
 def get_connection():
     try:
         return mysql.connector.connect(
-            host="localhost",
-            user="root",
-            password="newpassword123",
-            database="ghg_db"
+            host=os.environ.get("DB_HOST", "localhost"),
+            user=os.environ.get("DB_USER", "root"),
+            password=os.environ.get("DB_PASSWORD", ""),
+            database=os.environ.get("DB_NAME", "ghg_db"),
+            port=int(os.environ.get("DB_PORT", 3306))
         )
     except Error as e:
         print(f"Error connecting to MySQL: {e}")
