@@ -24,7 +24,7 @@ export default function Signup() {
     try {
       await signupUser(form);
       setSuccess(true);
-      setTimeout(() => navigate('/login'), 1200);
+      setTimeout(() => navigate('/dashboard'), 1200);
     } catch (err) {
       setError(err.message || 'Signup failed. Please try again.');
     } finally {
